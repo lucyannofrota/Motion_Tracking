@@ -65,8 +65,8 @@ all: main-build
 main-build: miniprojetoSE.elf secondary-outputs
 
 # Tool invocations
-miniprojetoSE.elf: $(OBJS) $(USER_OBJS) D:\Users\kmori\STM32CubeIDE\workspace_1.5.1\proj\miniprojetoSE\STM32L4R5ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "miniprojetoSE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\Users\kmori\STM32CubeIDE\workspace_1.5.1\proj\miniprojetoSE\STM32L4R5ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="miniprojetoSE.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+miniprojetoSE.elf: $(OBJS) $(USER_OBJS) D:\Documents\GitHub\MotionTracking\stm_Mi\miniprojetoSE\STM32L4R5ZITX_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "miniprojetoSE.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"D:\Documents\GitHub\MotionTracking\stm_Mi\miniprojetoSE\STM32L4R5ZITX_FLASH.ld" --specs=nosys.specs -Wl,-Map="miniprojetoSE.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 

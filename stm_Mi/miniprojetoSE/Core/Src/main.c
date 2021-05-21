@@ -61,6 +61,13 @@ const osThreadAttr_t TransmitTask_BT_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
+/* Definitions for PingTask */
+osThreadId_t PingTaskHandle;
+const osThreadAttr_t PingTask_attributes = {
+  .name = "PingTask",
+  .stack_size = 128 * 4,
+  .priority = (osPriority_t) osPriorityLow,
+};
 /* Definitions for SR_Queue */
 osMessageQueueId_t SR_QueueHandle;
 const osMessageQueueAttr_t SR_Queue_attributes = {
@@ -86,6 +93,7 @@ static void MX_LPUART1_UART_Init(void);
 static void MX_UART4_Init(void);
 void StartTransmitTask_Serial(void *argument);
 void StartTransmitTask_BT(void *argument);
+void StartPingTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -165,6 +173,9 @@ int main(void)
 
   /* creation of TransmitTask_BT */
   TransmitTask_BTHandle = osThreadNew(StartTransmitTask_BT, NULL, &TransmitTask_BT_attributes);
+
+  /* creation of PingTask */
+  PingTaskHandle = osThreadNew(StartPingTask, NULL, &PingTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -452,6 +463,26 @@ void StartTransmitTask_BT(void *argument)
 		osDelay(100);
 	}
   /* USER CODE END StartTransmitTask_BT */
+}
+
+/* USER CODE BEGIN Header_StartPingTask */
+/**
+* @brief Function implementing the PingTask thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_StartPingTask */
+void StartPingTask(void *argument)
+{
+  /* USER CODE BEGIN StartPingTask */
+	uint8_t msg[8] = "1234567\n";
+  /* Infinite loop */
+  for(;;)
+  {
+	HAL_UART_Transmit(&huart4, msg, 8, 100);
+    osDelay(5000);
+  }
+  /* USER CODE END StartPingTask */
 }
 
  /**
