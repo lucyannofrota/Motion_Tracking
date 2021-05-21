@@ -1,5 +1,3 @@
-
-
 #include <SoftwareSerial.h>
 
 #define ENABLE_PIN 7
@@ -12,11 +10,7 @@ SoftwareSerial bluetooth(pinoRX, pinoTX);
 void setup(){
   pinMode(ENABLE_PIN,OUTPUT); digitalWrite(ENABLE_PIN,LOW);
   Serial.begin(38400);
-  Serial.println("%-----%");
-  Serial.println("%-----%");
   bluetooth.begin(38400);
-  bluetooth.println("%-----%");
-  bluetooth.println("%-----%");
   delay(100);
 }
 

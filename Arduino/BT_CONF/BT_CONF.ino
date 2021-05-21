@@ -13,13 +13,14 @@ AT+RESET : Reset and exit AT mode
 AT+ORGL : Restore factory settings
 AT+PSWD: see default password
 AT+BIND: Master Connect (Slave addr: xxxx,xxx,xx)
+https://s3-sa-east-1.amazonaws.com/robocore-lojavirtual/709/HC-05_ATCommandSet.pdf
  * 
  */
 
 /* 
  * BaudRate 38400
  * Name BT1, BT2
- * PSW 1122, 1122
+ * PSW 1234, 1234
  */
 #include <stdio.h>
 #include <string.h>
@@ -72,6 +73,8 @@ void setup() {
   command("AT");
   Rdata = command("AT+NAME?");
   if(Rdata.indexOf("BT1") != -1){
+    command("AT+UART=38400,0,0");
+    command("AT+ROLE=1");
     command("AT+RMAAD");
     command("AT+PSWD=1234");
     command("AT+PAIR=0020,10,000240");
@@ -81,9 +84,18 @@ void setup() {
     command("AT+RESET");
   }
   else{
-    command("AT+ADDR?");
-    command("AT+PSWD?");
-    command("AT+RESET");
+    if(Rdata.indexOf("BT2") != -1){
+      command("AT+UART=38400");
+      command("AT+ROLE=0");
+      command("AT+PSWD=1234");
+      command("AT+ADDR?");
+      command("AT+RESET");  
+    }
+    else{
+      command("AT+ADDR?");
+      command("AT+PSWD?");
+      command("AT+RESET"); 
+    }
   }
 }
 
