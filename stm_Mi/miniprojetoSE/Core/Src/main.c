@@ -475,11 +475,11 @@ void StartTransmitTask_BT(void *argument)
 void StartPingTask(void *argument)
 {
   /* USER CODE BEGIN StartPingTask */
-	uint8_t msg[8] = "1234567\n";
+	uint8_t msg[7] = "543210\n";
   /* Infinite loop */
   for(;;)
   {
-	HAL_UART_Transmit(&huart4, msg, 8, 100);
+	HAL_UART_Transmit(&huart4, msg, 7, 100);
     osDelay(5000);
   }
   /* USER CODE END StartPingTask */
