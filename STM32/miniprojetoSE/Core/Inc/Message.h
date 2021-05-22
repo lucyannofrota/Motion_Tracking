@@ -12,11 +12,13 @@
 #include <string.h>
 
 
-void reset(uint8_t * msgStr, uint8_t* pointer);
-void addChar(char data, uint8_t * pointer);
-void addInt(uint16_t data, uint8_t *pointer);
-void addStr(uint8_t *data,uint8_t len, uint8_t* pointer);
+void reset();
+void addChar(char data);
+void addInt(int16_t data);
+void addStr(uint8_t *data,uint8_t len);
+uint8_t available(void);
 
-
-
+void writeBytes();
+void setTemp(int16_t num);
+uint8_t length();
 #endif /* SRC_MESSAGE_H_ */
