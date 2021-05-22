@@ -6,12 +6,17 @@ Serial myPort;
 
 String data="";
 
+int lm;
+
 float roll, pitch, yaw;
 Pose CubePose = new Pose(0,0,0,0,0,0);
+
 void setup() {
   size (800, 800, P3D);
   myPort = new Serial(this, "COM9", 38400);
+  delay(1000);
   myPort.bufferUntil('\n');
+  lm = millis();
 }
 void draw() {
   translate(width/2, height/2, 0);
@@ -35,15 +40,28 @@ void rd(){
   
 }
 
+byte[] COMBuff = new byte[64];
+
 void serialEvent (Serial myPort) { 
-  data = myPort.readStringUntil('\n');
-  if (data != null) {
-    for(int i = 0; i < 6; i++){
-      println(data.charAt(i));
+  int ac = millis(); 
+  println("Time:" + (ac-lm));
+  lm = ac;
+  COMBuff = myPort.readBytesUntil('}');
+  offset of = new offset(0);
+  if (COMBuff != null && COMBuff.length >= 3) {
+    char c = readChar(COMBuff,of);
+    if(c == '\n'){
+      c = readChar(COMBuff,of);
+      if(c == '{'){
+        c = readChar(COMBuff,of);
+        switch(c){
+          case 'P':
+            if(COMBuff.length >= 16){
+              readPose(COMBuff,of,CubePose);
+            }
+            break;
+        }
+      }
     }
-    CubePose.X = data.charAt(0)-48; CubePose.Y = data.charAt(1)-48; CubePose.Z = data.charAt(2)-48;
-    CubePose.Rx = data.charAt(3)-48; CubePose.Ry = data.charAt(4)-48; CubePose.Rz = data.charAt(5)-48;
-    CubePose.print();
-    println(data);
   }
 }
