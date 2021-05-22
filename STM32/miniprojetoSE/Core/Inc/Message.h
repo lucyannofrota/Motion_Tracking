@@ -12,13 +12,10 @@
 #include <string.h>
 
 
-uint8_t * pointer;
-uint8_t msgStr[64];
-
-void reset(void);
-void addChar(char);
-void addInt(uint16_t);
-void addStr(uint8_t *,uint8_t);
+void reset(uint8_t * msgStr, uint8_t* pointer);
+void addChar(char data, uint8_t * pointer);
+void addInt(uint16_t data, uint8_t *pointer);
+void addStr(uint8_t *data,uint8_t len, uint8_t* pointer);
 
 
 

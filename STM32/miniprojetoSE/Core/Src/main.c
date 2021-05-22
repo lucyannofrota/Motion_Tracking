@@ -85,9 +85,9 @@ const osMessageQueueAttr_t BT_Queue_attributes = {
 uint8_t BT_BUFFER[BUFFER_LEN];
 uint8_t SR_BUFFER[BUFFER_LEN] = "";
 
-extern uint8_t * pointer;
+uint8_t * pointer;
 
-extern uint8_t msgStr[64];
+uint8_t msgStr[64];
 
 /* USER CODE END PV */
 
@@ -197,6 +197,7 @@ int main(void)
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -482,16 +483,17 @@ void StartPingTask(void *argument)
 {
   /* USER CODE BEGIN StartPingTask */
 	uint8_t msg_[7] = "543210\n";
-	addStr(msg_,7);
-
+//	  reset(msgStr, pointer);
+//	  addStr(msg_,7, pointer);
   /* Infinite loop */
   for(;;)
   {
 	HAL_UART_Transmit(&huart4, msg_, 7, 100);
-	HAL_UART_Transmit(&hlpuart1, msgStr, sizeof(msgStr), 100);
-	HAL_UART_Transmit(&huart4, msgStr, sizeof(msgStr), 100);
+//	HAL_UART_Transmit(&hlpuart1, msg_, sizeof(msg_), 100);
+//	HAL_UART_Transmit(&hlpuart1, msgStr, sizeof(msgStr), 100);
+//	HAL_UART_Transmit(&huart4, msgStr, sizeof(msgStr), 100);
 
-    osDelay(5000);
+    osDelay(150);
   }
   /* USER CODE END StartPingTask */
 }
