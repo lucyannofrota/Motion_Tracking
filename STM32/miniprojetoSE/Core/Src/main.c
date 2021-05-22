@@ -25,6 +25,8 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdio.h>
+#include "../Inc/Message.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -82,6 +84,7 @@ const osMessageQueueAttr_t BT_Queue_attributes = {
 
 uint8_t BT_BUFFER[BUFFER_LEN];
 uint8_t SR_BUFFER[BUFFER_LEN] = "";
+
 
 /* USER CODE END PV */
 
@@ -191,6 +194,7 @@ int main(void)
   /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
   while (1)
   {
     /* USER CODE END WHILE */
@@ -475,12 +479,43 @@ void StartTransmitTask_BT(void *argument)
 void StartPingTask(void *argument)
 {
   /* USER CODE BEGIN StartPingTask */
-	uint8_t msg[7] = "543210\n";
+//	char msg[8];
+
+//	uint8_t * pointer;
+//	uint8_t msgStr[64];
+
+//	uint8_t i=0;
+//	reset( msgStr, pointer);
+//	addStr(msg_,7, pointer);
+
   /* Infinite loop */
   for(;;)
   {
-	HAL_UART_Transmit(&huart4, msg, 7, 100);
-    osDelay(5000);
+	  /*i++;
+
+	  switch(i){
+		  case 0:
+			  strcpy(msg,"012345\0");
+			  break;
+		  case 1:
+			  strcpy(msg,"123456\0");
+			  break;
+		  case 2:
+			  strcpy(msg,"234567\0");
+			  break;
+		  case 3:
+			  strcpy(msg,"345678\0");
+			  break;
+		  case 4:
+			  strcpy(msg,"456789\0");
+			  break;
+		  default:
+			  i = 0;
+			  //j = 0;
+	  }
+	  HAL_UART_Transmit(&huart4, (uint8_t *)msg, 7, 100);*/
+	  sendPose();
+	  osDelay(150);
   }
   /* USER CODE END StartPingTask */
 }
