@@ -56,12 +56,18 @@ uint8_t available(){
 void sendPose(){
 	reset();
 	addChar('P');
-	addInt(0x4D);
+	/*addInt(0x4D);
 	addInt(0x4E);
 	addInt(0x4F);
 	addInt(0x50);
 	addInt(0x51);
-	addInt(0x52);
+	addInt(0x52);*/
+	addInt(32767);
+	addInt(126);
+	addInt(0b011);
+	addInt(0b011 << 8);
+	addInt(253);
+	addInt(-32768);
 	addChar('}');
 	addChar('\n');
 	writeBytes();
