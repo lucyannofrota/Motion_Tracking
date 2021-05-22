@@ -479,19 +479,19 @@ void StartTransmitTask_BT(void *argument)
 void StartPingTask(void *argument)
 {
   /* USER CODE BEGIN StartPingTask */
-	char msg[8];
+//	char msg[8];
 
 //	uint8_t * pointer;
 //	uint8_t msgStr[64];
 
-	uint8_t i=0;
+//	uint8_t i=0;
 //	reset( msgStr, pointer);
 //	addStr(msg_,7, pointer);
 
   /* Infinite loop */
   for(;;)
   {
-	  i++;
+	  /*i++;
 
 	  switch(i){
 		  case 0:
@@ -513,8 +513,8 @@ void StartPingTask(void *argument)
 			  i = 0;
 			  //j = 0;
 	  }
-	  HAL_UART_Transmit(&huart4, (uint8_t *)msg, 7, 100);
-	  setTemp(0x2BF0);
+	  HAL_UART_Transmit(&huart4, (uint8_t *)msg, 7, 100);*/
+	  sendPose();
 	  osDelay(150);
   }
   /* USER CODE END StartPingTask */

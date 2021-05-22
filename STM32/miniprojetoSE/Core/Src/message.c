@@ -11,12 +11,12 @@ uint8_t * pointer;
 uint8_t   msgStr[64];
 
 extern UART_HandleTypeDef hlpuart1;
-
+extern UART_HandleTypeDef huart4;
 
 void reset(){
-	msgStr[0] = 0x3A;
-	msgStr[1] = 0x29;
-	pointer = &msgStr[2];
+	//msgStr[0] = 0x06;
+	msgStr[0] = 0x7B;
+	pointer = &msgStr[1];
 }
 
 void addChar(char data){
@@ -46,17 +46,33 @@ uint8_t length(){
 
 void writeBytes(){
 	HAL_UART_Transmit(&hlpuart1, msgStr, length(), 100);
+	HAL_UART_Transmit(&huart4, msgStr, length(), 100);
 }
 
 uint8_t available(){
 	return &msgStr[64 - 1] - pointer + 1;
 }
 
-void setTemp(int16_t num){
+void sendPose(){
 	reset();
+	addChar('P');
+	addInt(0x4D);
+	addInt(0x4E);
+	addInt(0x4F);
+	addInt(0x50);
+	addInt(0x51);
+	addInt(0x52);
+	addChar('}');
+	addChar('\n');
+	writeBytes();
+}
+
+void setTemp(){
+	reset();
+	//addInt(9);
 	uint8_t b[] = "batata";
 	addStr(b,6);
-	addInt(num);
-	addChar('a');
+	addInt(0x21);
+	addChar('}');
 	writeBytes();
 }
