@@ -28,8 +28,18 @@ void readSerial(){
   memcpy(buf,0,BUFFER_LEN);
   int len = bluetooth.available();
   if(len > 0){
-    bluetooth.readBytes(buf, 11);
-    Serial.write(buf,11);
+    bluetooth.readBytes(&buf[0], 1);
+    if(buf[0] == '{'){
+      bluetooth.readBytes(&buf[1], 1);
+      switch(buf[1]){
+        case 'P':
+          bluetooth.readBytes(&buf[2], 12); // ler payload
+          
+          bluetooth.readBytes(&buf[14], 2); // ler caracteres terminadores
+          Serial.write(buf,16);
+          break; 
+      }
+    }
   }
   delay(25);
 }
