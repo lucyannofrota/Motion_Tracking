@@ -45,7 +45,7 @@ uint8_t length(){
 }
 
 void writeBytes(){
-	HAL_UART_Transmit(&hlpuart1, msgStr, length(), 100);
+	//HAL_UART_Transmit(&hlpuart1, msgStr, length(), 100);
 	HAL_UART_Transmit(&huart4, msgStr, length(), 100);
 }
 
