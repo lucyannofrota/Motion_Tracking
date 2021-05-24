@@ -1,0 +1,5 @@
+HC05     40mA
+MPU9250  3.3mA x4
+
+Each VDD => 100mA
+Max VDD total => 200mA
