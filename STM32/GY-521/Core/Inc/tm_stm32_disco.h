@@ -309,7 +309,7 @@ extern "C" {
     #define DISCO_USART_PP              TM_USART_PinsPack_1
 /* No board used */
 #else
-	#warning "tm_stm32_disco.h: Please select your board. Open tm_stm32_disco.h and follow instructions! Support is currently disabled"
+//	#warning "tm_stm32_disco.h: Please select your board. Open tm_stm32_disco.h and follow instructions! Support is currently disabled"
 	
 	#define LED_GREEN					0
 	#define LED_RED						0
