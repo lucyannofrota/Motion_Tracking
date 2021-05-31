@@ -9,24 +9,24 @@ class camera_Obj{
     this.z = z_;
     this.pitch = 0;
     this.yaw = radians(-90);
-    this.fov = 2; 
+    this.fov = 1.5; 
   }
   
   void transl(float dXm, float dYm){
-    cam.x-=dXm/3;
-    cam.y-=dYm/3;
+    cam.x+=dXm/3;
+    cam.y+=dYm/3;
     this.update();
   }
   
   void rot(float dXm, float dYm){
-    cam.yaw+=dXm/500;
+    cam.yaw-=dXm/500;
     if(cam.yaw > 89){
       cam.yaw = 89;
     }
     if(cam.yaw < -89){
       cam.yaw = -89;
     }
-    cam.pitch+=dYm/500;
+    cam.pitch-=dYm/500;
     if(cam.pitch > 89){
       cam.pitch = 89;
     }
@@ -38,8 +38,8 @@ class camera_Obj{
   }
   
   void update(){
-    camera(x, y, z, x+cos(yaw)*cos(pitch), y+sin(pitch), z+sin(yaw)*cos(pitch), 0, 1, 0);
-    perspective(fov, float(width)/float(height), 0.001, 1000);
+    camera(x, y, z, x+cos(yaw)*cos(pitch), y+sin(pitch), z+sin(yaw)*cos(pitch), 0, -1, 0);
+    perspective(fov, float(width)/float(height), 0.001, 1000000);
   }
 }
 //let Ry = Math.sin(glm.radians(this.pitch));
@@ -67,8 +67,8 @@ void mouseWheel(MouseEvent event) {
   if(cam.fov < 1){
     cam.fov = 1;
   }
-  if(cam.fov > 3){
-    cam.fov = 3;
+  if(cam.fov > 2){
+    cam.fov = 2;
   }
   cam.update();
 }
