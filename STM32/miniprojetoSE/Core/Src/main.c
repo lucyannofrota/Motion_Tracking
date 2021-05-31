@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include "../Inc/Message.h"
 #include "tm_stm32_mpu6050.h"
+#include "macros.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -223,7 +224,7 @@ int main(void)
 			  TM_MPU6050_ReadAll(&MPU6050);
 			  char msg[500];
 			  sprintf(msg,"\rAccX: %hu, AccY: %hu, AccZ: %hu\n GyrX: %hu, GyrY: %hu, GyrZ:%hu\n Temp: %f\n ",MPU6050.Accelerometer_X,MPU6050.Accelerometer_Y,MPU6050.Accelerometer_Z,MPU6050.Gyroscope_X,MPU6050.Gyroscope_Y,MPU6050.Gyroscope_Z, MPU6050.Temperature);
-			  HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg, sizeof(msg), 100);
+			  transmit(msg);
 			  /* Raw data are available for use when needed */
 			  //MPU6050.Accelerometer_X;
 			  //MPU6050.Accelerometer_Y;
@@ -548,8 +549,9 @@ void StartTransmitTask_Serial(void *argument)
 				osMessageQueueGet(SR_QueueHandle, c, 0, 100);
 				strncat(msg_sr, c, 1);
 			}
-			HAL_UART_Transmit(&huart4, (uint8_t *)msg_sr, sizeof(msg_sr), 100);
-			HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg_sr, sizeof(msg_sr), 100);
+			transmit(msg_sr);
+			//HAL_UART_Transmit(&huart4, (uint8_t *)msg_sr, sizeof(msg_sr), 100);
+			//HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg_sr, sizeof(msg_sr), 100);
 		}
 		osDelay(100);
 	}
@@ -580,8 +582,7 @@ void StartTransmitTask_BT(void *argument)
 				osMessageQueueGet(BT_QueueHandle, b, 0, 100);
 				strncat(msg_bt,b,1);
 			}
-			HAL_UART_Transmit(&huart4, (uint8_t *)msg_bt, sizeof(msg_bt), 100);
-			HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg_bt, sizeof(msg_bt), 100);
+			transmit(msg_bt);
 		}
 		osDelay(100);
 	}
@@ -598,41 +599,10 @@ void StartTransmitTask_BT(void *argument)
 void StartPingTask(void *argument)
 {
   /* USER CODE BEGIN StartPingTask */
-//	char msg[8];
-
-//	uint8_t * pointer;
-//	uint8_t msgStr[64];
-
-//	uint8_t i=0;
-//	reset( msgStr, pointer);
-//	addStr(msg_,7, pointer);
 
   /* Infinite loop */
   for(;;)
   {
-	  /*i++;
-
-	  switch(i){
-		  case 0:
-			  strcpy(msg,"012345\0");
-			  break;
-		  case 1:
-			  strcpy(msg,"123456\0");
-			  break;
-		  case 2:
-			  strcpy(msg,"234567\0");
-			  break;
-		  case 3:
-			  strcpy(msg,"345678\0");
-			  break;
-		  case 4:
-			  strcpy(msg,"456789\0");
-			  break;
-		  default:
-			  i = 0;
-			  //j = 0;
-	  }
-	  HAL_UART_Transmit(&huart4, (uint8_t *)msg, 7, 100);*/
 	  sendPose();
 	  osDelay(150);
   }

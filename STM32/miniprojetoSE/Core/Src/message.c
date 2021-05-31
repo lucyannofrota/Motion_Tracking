@@ -7,6 +7,7 @@
 
 #include "Message.h"
 #include "main.h"
+#include "macros.h"
 uint8_t * pointer;
 uint8_t   msgStr[64];
 
@@ -45,8 +46,7 @@ uint8_t length(){
 }
 
 void writeBytes(){
-	//HAL_UART_Transmit(&hlpuart1, msgStr, length(), 100);
-	HAL_UART_Transmit(&huart4, msgStr, length(), 100);
+	transmit_l(msgStr, length());
 }
 
 uint8_t available(){
