@@ -25,7 +25,7 @@ https://s3-sa-east-1.amazonaws.com/robocore-lojavirtual/709/HC-05_ATCommandSet.p
 #include <stdio.h>
 #include <string.h>
 
-#define ENABLE_PIN 7
+#define ENABLE_PIN 4
 
 
 #define RX_PIN 3 // Voltage Divider 3.3V
