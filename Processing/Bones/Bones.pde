@@ -1,9 +1,10 @@
 import processing.serial.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+import grafica.*;
 
 Serial myPort;
-
+int a;
 String data="";
 
 int lm;
@@ -15,21 +16,36 @@ camera_Obj cam;
 
 body bd1 = new body(170); 
 
-void setup() {
-  size (800, 800, P3D);
+void settings(){
+  size (800/800, 800/800, P3D);
   myPort = new Serial(this, "COM9", 38400);
   delay(1000);
   myPort.bufferUntil('\n');
+}
+
+void setup() {
+  surface.setTitle("Main Window");
+  myGraphWindow PG = new myGraphWindow();
+
   lm = millis();
   
   cam = new camera_Obj(float(0),3*float(170)/4,float(100));
   cam.update();
   
+ 
 }
 //37
 
 void draw() {
   background(#DCDCDC);
+  float len = 10000;
+  stroke(255, 0, 0);
+  line(0, 0, 0, len, 0, 0);
+  stroke(0, 255, 0);
+  line(0, 0, 0, 0, len, 0);
+  stroke(0, 0, 255);
+  line(0, 0, 0, 0, 0, len);
+  noStroke();
   draw_floor();
   bd1.draw();
   

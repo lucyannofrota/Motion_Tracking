@@ -35,7 +35,9 @@ void readPose(byte[] data,offset offset,Pose pos){
 
 byte[] COMBuff = new byte[64];
 
-void serialEvent (Serial myPort) { 
+void serialEvent (Serial myPort) {
+  IMU sensor = new IMU();
+  //Implementar metodos para enviar a recebida pelo sensors
   int ac = millis(); 
   //println("Time:" + (ac-lm));
   lm = ac;
@@ -54,6 +56,9 @@ void serialEvent (Serial myPort) {
           CubePose.setZero();
           break;
       }
+    }
+    else{
+      print(c);
     }
   }
 }

@@ -47,6 +47,17 @@ class body{
   float b_shoulders_hip_r;
   float b_chest;
   
+  void showAxis(){
+    float len = 40;
+    stroke(255, 0, 0);
+    line(0, 0, 0, len, 0, 0);
+    stroke(0, 255, 0);
+    line(0, 0, 0, 0, len, 0);
+    stroke(0, 0, 255);
+    line(0, 0, 0, 0, 0, len);
+    noStroke();
+  }
+  
   body(float _height){
     b_height = _height;
     b_head_r = 14.8/2;
@@ -80,16 +91,39 @@ class body{
     popMatrix();
   }
   
-  void draw_left_arm(float x,float y,float z){
-    
+  void draw_left_arm(float x,float y,float z,int showAxis){
+    pushMatrix();
+    fill(#18B9C0);
+    rotateY(PI);
+    translate(-x,y,-z);
+    sphere(b_shoulders_hip_r/2);
+    if(showAxis == 1){
+      showAxis();
+    }
+    popMatrix();
   }
   
-  void draw_chest(float pos){
+  void draw_right_arm(float x,float y,float z,int showAxis){
+    pushMatrix();
+    fill(#18B9C0);
+    //rotateZ(PI/2);
+    translate(x,y,z);
+    sphere(b_shoulders_hip_r/2);
+    if(showAxis == 1){
+      showAxis();
+    }
+    popMatrix();
+  }
+  
+  void draw_chest(float pos,int showAxis){
     pushMatrix();
     translate(0,pos,0);
     fill(#C84646);
     rotateX(PI/2);
     drawCylinder(36,b_shoulders_hip_r,b_shoulders_hip_r,b_chest);
+    if(showAxis == 1){
+      showAxis();
+    }
     popMatrix();
   }
   
@@ -102,10 +136,22 @@ class body{
   }
   
   void draw(){
+    noStroke();
+    lights();
     draw_head(b_height-b_head_r);
     draw_neck(b_height-2*b_head_r-b_neck/2+b_neck/4);
     draw_shoulders(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r);
-    draw_chest(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-b_chest/2);
+    draw_left_arm(-b_shoulders_hip_r,b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r,0,1);
+    draw_right_arm(b_shoulders_hip_r,b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r,0,1);
+    draw_chest(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-b_chest/2,1);
     draw_hip(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-2*b_chest/2);
   }
 }
+
+
+//stroke(255, 0, 0);
+//line(-1000, 0, 0, 1000, 0, 0);
+//stroke(0, 255, 0);
+//line(0, -1000, 0, 0, 1000, 0);
+//stroke(0, 0, 255);
+//line(0, 0, -1000, 0, 0, 1000);
