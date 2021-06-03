@@ -56,9 +56,9 @@ UART_HandleTypeDef hlpuart1;
 
 /* USER CODE BEGIN PV */
 #undef MPL_LOGI
-#define MPL_LOGI(...) HAL_UART_Transmit(&hlpuart1,(uint8_t *)__VA_ARGS__,sizeof(__VA_ARGS__),100)
+#define MPL_LOGI(...) printf(__VA_ARGS__)
 #undef MPL_LOGE
-#define MPL_LOGE(...) HAL_UART_Transmit(&hlpuart1,(uint8_t *)__VA_ARGS__,sizeof(__VA_ARGS__),100)
+#define MPL_LOGE(...) printf(__VA_ARGS__)
 
 int _write(int file, char *ptr, int len)
 {
@@ -131,18 +131,9 @@ static inline void run_self_test(void)
 #endif
 	}
 	else {
-		if (!(result & 0x1)){
-			char msg[20] = "Gyro failed.\n";
-			HAL_UART_Transmit(&hlpuart1, (uint8_t *) msg, sizeof(msg), 100);
-		}
-		if (!(result & 0x2)){
-			char msg[20] = "Accel failed.\n";
-			HAL_UART_Transmit(&hlpuart1, (uint8_t *) msg, sizeof(msg), 100);
-		}
-		if (!(result & 0x4)){
-			char msg[20] = "Compass failed.\n";
-			HAL_UART_Transmit(&hlpuart1, (uint8_t *) msg, sizeof(msg), 100);
-		}
+		if (!(result & 0x1)) printf("Gyro failed.\n");
+		if (!(result & 0x2)) printf("Accel failed.\n");
+		if (!(result & 0x4)) printf("Compass failed.\n");
 	}
 
 }
@@ -256,55 +247,21 @@ static void MX_LPUART1_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  * @retval int
-  */
-int main(void)
-{
-  /* USER CODE BEGIN 1 */
-	unsigned char accel_fsr,  new_temp = 0;
+int MPU_init(){
+	unsigned char accel_fsr;
 	unsigned short gyro_rate, gyro_fsr;
-	unsigned long timestamp;
 	struct int_param_s int_param;
-
-  /* USER CODE END 1 */
-
-  /* MCU Configuration--------------------------------------------------------*/
-
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
-
-  /* USER CODE BEGIN Init */
-
-  /* USER CODE END Init */
-
-  /* Configure the system clock */
-  SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_I2C1_Init();
-  MX_LPUART1_UART_Init();
-  /* USER CODE BEGIN 2 */
-
 	int_param.cb = gyro_data_ready_cb;
-	int result = mpu_init(&int_param);
-	if (result !=0) {
+
+	if (mpu_init(&int_param) !=0){
 		MPL_LOGI("Could not start MPU!\n");
+		return -1;
 	}
-	result = inv_init_mpl();
-	if (result !=0) {
-		HAL_UART_Transmit(&hlpuart1, (uint8_t *)"Could not initialize MPL.\n", 26, 100);
+
+	if (inv_init_mpl() !=0){
+		printf("Could not initialize MPL.\n");
+		return -1;
 	}
-	//HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, GPIO_PIN_RESET);
 
 	inv_enable_quaternion();
 	inv_enable_9x_sensor_fusion();
@@ -318,14 +275,15 @@ int main(void)
 #endif
 	inv_enable_eMPL_outputs();
 
-	result = inv_start_mpl();
+	int result = inv_start_mpl();
 	if (result == INV_ERROR_NOT_AUTHORIZED) {
 		while (1) {
 			MPL_LOGE("Not authorized.\n");
 		}
 	}
-	if (result) {
+	if (result){
 		MPL_LOGE("Could not start the MPL.\n");
+		return -1;
 	}
 #ifdef COMPASS_ENABLED
 	mpu_set_sensors(INV_XYZ_GYRO | INV_XYZ_ACCEL | INV_XYZ_COMPASS);
@@ -343,7 +301,6 @@ int main(void)
 	 */
 	mpu_set_compass_sample_rate(1000 / COMPASS_READ_MS);
 #endif
-	/* Read back configuration in case it was set improperly. */
 	mpu_get_sample_rate(&gyro_rate);
 	mpu_get_gyro_fsr(&gyro_fsr);
 	mpu_get_accel_fsr(&accel_fsr);
@@ -370,6 +327,68 @@ int main(void)
             inv_orientation_matrix_to_scalar(compass_pdata.orientation),
             (long)compass_fsr<<15);
 #endif
+	return 0;
+}
+
+struct angles_t toEuler(float qw,float qx, float qy, float qz){
+	struct angles_t angle;
+	//roll
+	double r1 = 2 * (qw * qx + qy * qz);
+	double r2 = 1 - 2 * (qx * qx + qy * qy);
+	angle.roll = atan2(r1,r2);
+
+	double p1 = 2 * (qw * qy - qz * qx);
+	if (fabs(p1) >= 1)
+		angle.pitch = copysign(M_PI / 2, p1); // use 90 degrees if out of range
+	else
+		angle.pitch = asin(p1);
+
+	// yaw (z-axis rotation)
+	double siny_cosp = 2 * (qw * qz + qx * qy);
+	double cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
+	angle.yaw = atan2(siny_cosp, cosy_cosp);
+
+	return angle;
+}
+/* USER CODE END 0 */
+
+/**
+  * @brief  The application entry point.
+  * @retval int
+  */
+int main(void)
+{
+  /* USER CODE BEGIN 1 */
+	unsigned long timestamp;
+
+  /* USER CODE END 1 */
+
+  /* MCU Configuration--------------------------------------------------------*/
+
+  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
+  HAL_Init();
+
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
+  /* Configure the system clock */
+  SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
+
+  /* Initialize all configured peripherals */
+  MX_GPIO_Init();
+  MX_I2C1_Init();
+  MX_LPUART1_UART_Init();
+  /* USER CODE BEGIN 2 */
+
+  if(MPU_init()) NVIC_SystemReset();
+
+	/* Read back configuration in case it was set improperly. */
+
 #ifdef COMPASS_ENABLED
     hal.sensors = ACCEL_ON | GYRO_ON | COMPASS_ON;
 #else
@@ -383,22 +402,17 @@ int main(void)
     hal.next_temp_ms = 0;
     get_tick_count(&timestamp);
 
-	if(dmp_load_motion_driver_firmware()){
-		char *msg = "Could not start DMP!\r\n";
-		HAL_UART_Transmit(&hlpuart1, (uint8_t *) msg, 24, 100);
-	}
+	if(dmp_load_motion_driver_firmware()) printf("Could not start DMP!\r\n");
+
 	dmp_set_interrupt_mode(DMP_INT_CONTINUOUS);
 	dmp_set_orientation(inv_orientation_matrix_to_scalar(gyro_pdata.orientation));
 	/* Compass reads are handled by scheduler. */
 	get_tick_count(&timestamp);
-	hal.dmp_features = DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL;
+	hal.dmp_features = DMP_FEATURE_SEND_RAW_ACCEL |DMP_FEATURE_6X_LP_QUAT | DMP_FEATURE_GYRO_CAL;
 	dmp_enable_feature(hal.dmp_features);
 	dmp_set_fifo_rate(DEFAULT_MPU_HZ);
 
-	if(mpu_set_dmp_state(1)){
-		char *msg = "Could not enable DMP!\r\n";
-		HAL_UART_Transmit(&hlpuart1, (uint8_t *) msg, 24, 100);
-	}
+	if(mpu_set_dmp_state(1)) printf("Could not enable DMP!\r\n");
 	hal.dmp_on = 1;
 
 	run_self_test();
@@ -412,9 +426,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-		continue;
 		unsigned long sensor_timestamp;
-		int new_data = 0;
 		get_tick_count(&timestamp);
 #ifdef COMPASS_ENABLED
 		/* We're not using a data ready interrupt for the compass, so we'll
@@ -432,7 +444,7 @@ int main(void)
  */
 		if (timestamp > hal.next_temp_ms) {
 			hal.next_temp_ms = timestamp + TEMP_READ_MS;
-			new_temp = 1;
+
 		}
 		if (!hal.sensors || !hal.new_gyro) {
 			continue;
@@ -440,7 +452,7 @@ int main(void)
 		if (hal.new_gyro && hal.dmp_on) {
 			short gyro[3], accel_short[3], sensors;
 			unsigned char more;
-			long accel[3], quat[4], temperature;
+			long accel[3], quat[4];
 			/* This function gets new data from the FIFO when the DMP is in
 			 * use. The FIFO can contain any combination of gyro, accel,
 			 * quaternion, and gesture data. The sensors parameter tells the
@@ -454,101 +466,40 @@ int main(void)
 			 * leftover packets in the FIFO.
 			 */
 			dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
-			//char *msg = "\r\naaa";
-			//HAL_UART_Transmit(&hlpuart1, (uint8_t *) msg, sizeof(msg), 100);
+			//printf("dmp on!");
 			if (!more)
 				hal.new_gyro = 0;
+
 			if (sensors & INV_XYZ_GYRO) {
-				/* Push the new data to the MPL. */
-				inv_build_gyro(gyro, sensor_timestamp);
-				new_data = 1;
-				if (new_temp) {
-					new_temp = 0;
-					/* Temperature only used for gyro temp comp. */
-					//char *msg = "\r\naaa";
-					//HAL_UART_Transmit(&hlpuart1, (uint8_t *) msg, sizeof(msg), 100);
-					inv_build_temp(temperature, sensor_timestamp);
-				}
+				printf("gyro: %7.4f %7.4f %7.4f\n",
+						gyro[0]/65536.f,
+						gyro[1]/65536.f,
+						gyro[2]/65536.f);
 			}
 			if (sensors & INV_XYZ_ACCEL) {
 				accel[0] = (long)accel_short[0];
 				accel[1] = (long)accel_short[1];
 				accel[2] = (long)accel_short[2];
-				inv_build_accel(accel, 0, sensor_timestamp);
-				new_data = 1;
+
+				//inv_build_accel(accel, 0, sensor_timestamp);
+				printf("accel: %7.4f %7.4f %7.4f\n",
+						accel[0]/65536.f,
+						accel[1]/65536.f,
+						accel[2]/65536.f);
 			}
-			if (sensors & INV_WXYZ_QUAT) {
-				inv_build_quat(quat, 0, sensor_timestamp);
-				new_data = 1;
-			}
-		} else if (hal.new_gyro) {
-			short gyro[3], accel_short[3];
-			unsigned char sensors, more;
-			long accel[3], temperature;
-			/* This function gets new data from the FIFO. The FIFO can contain
-			 * gyro, accel, both, or neither. The sensors parameter tells the
-			 * caller which data fields were actually populated with new data.
-			 * For example, if sensors == INV_XYZ_GYRO, then the FIFO isn't
-			 * being filled with accel data. The more parameter is non-zero if
-			 * there are leftover packets in the FIFO. The HAL can use this
-			 * information to increase the frequency at which this function is
-			 * called.
-			 */
-			hal.new_gyro = 0;
-			mpu_read_fifo(gyro, accel_short, &sensor_timestamp,
-					&sensors, &more);
-			if (more)
-				hal.new_gyro = 1;
-			if (sensors & INV_XYZ_GYRO) {
-				/* Push the new data to the MPL. */
-				//				inv_build_gyro(gyro, sensor_timestamp);
-				new_data = 1;
-				if (new_temp) {
-					new_temp = 0;
-					/* Temperature only used for gyro temp comp. */
-					mpu_get_temperature(&temperature, &sensor_timestamp);
-					inv_build_temp(temperature, sensor_timestamp);
+			if(sensors&INV_WXYZ_QUAT)
+				{
+					struct angles_t angle = {0};
+					angle = toEuler(quat[0], quat[1], quat[2], quat[3]);
+					printf("pitch = %f\r\n", angle.pitch);
+					printf("roll = %f\r\n",angle.roll);
+					printf("yaw = %f\r\n",angle.yaw);
+
 				}
-			}
-			if (sensors & INV_XYZ_ACCEL) {
-				accel[0] = (long)accel_short[0];
-				accel[1] = (long)accel_short[1];
-				accel[2] = (long)accel_short[2];
-				inv_build_accel(accel, 0, sensor_timestamp);
-				new_data = 1;
-			}
-#ifdef COMPASS_ENABLED
-			if (new_compass) {
-				short compass_short[3];
-				long compass[3];
-				new_compass = 0;
-				/* For any MPU device with an AKM on the auxiliary I2C bus, the raw
-				 * magnetometer registers are copied to special gyro registers.
-				 */
-				if (!mpu_get_compass_reg(compass_short, &sensor_timestamp)) {
-					compass[0] = (long)compass_short[0];
-					compass[1] = (long)compass_short[1];
-					compass[2] = (long)compass_short[2];
-					/* NOTE: If using a third-party compass calibration library,
-					 * pass in the compass data in uT * 2^16 and set the second
-					 * parameter to INV_CALIBRATED | acc, where acc is the
-					 * accuracy from 0 to 3.
-					 */
-					inv_build_compass(compass, 0, sensor_timestamp);
-				}
-				new_data = 1;
-			}
-#endif
-			if (new_data) {
-				inv_execute_on_data();
-				/* This function reads bias-compensated sensor data and sensor
-				 * fusion outputs from the MPL. The outputs are formatted as seen
-				 * in eMPL_outputs.c. This function only needs to be called at the
-				 * rate requested by the host.
-				 */
-				read_from_mpl();
-			}
+
+
 		}
+
 	}
   /* USER CODE END 3 */
 }
@@ -625,7 +576,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x00602173;
+  hi2c1.Init.Timing = 0x10707DBC;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -743,9 +694,8 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	gyro_data_ready_cb();
-	//char *msg = "\r\naaa";
-	//HAL_UART_Transmit(&hlpuart1, (uint8_t *) msg, sizeof(msg), 100);
+	//gyro_data_ready_cb();
+	hal.new_gyro = 1;
 }
 /* USER CODE END 4 */
 

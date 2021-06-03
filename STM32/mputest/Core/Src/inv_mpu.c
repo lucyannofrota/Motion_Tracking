@@ -43,10 +43,7 @@ extern I2C_HandleTypeDef hi2c1;
 extern UART_HandleTypeDef hlpuart1;
 
 #define i2c_write(slave_addr,reg_addr,length,data) 	HAL_I2C_Mem_Write(&hi2c1, slave_addr<<1, reg_addr, 1, data, length, HAL_MAX_DELAY)
-
-//HAL_I2C_Master_Transmit(&hi2c1, slave_addr<<1, data, length, HAL_MAX_DELAY)
 #define i2c_read(slave_addr,reg_addr,length,data)   HAL_I2C_Mem_Read(&hi2c1, slave_addr<<1, reg_addr, 1, data, length, HAL_MAX_DELAY)
-//HAL_I2C_Master_Receive(&hi2c1, slave_addr<<1, data, length, HAL_MAX_DELAY)
 #define delay_ms(x)    HAL_Delay(x)
 
 //#define log_i(...)     printf(__VA_ARGS__)
@@ -77,6 +74,7 @@ static void get_ms(unsigned long *time){
 }
 static inline int reg_int_cb(struct int_param_s *int_param)
 {
+	printf("reg_int_cb!");
 return 0;
 }
 #define min(a,b) ((a<b)?a:b)

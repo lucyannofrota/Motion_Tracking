@@ -131,8 +131,9 @@ void eMPL_send_quat(long *quat)
     out[18] = (char)quat[3];
     out[21] = '\r';
     out[22] = '\n';
-    
-	HAL_UART_Transmit(&hlpuart1, (uint8_t *) out, sizeof(out), 100);
+
+    printf("aaaa1\n\r");
+    printf("%s\n\r",out);
 }
 
 void eMPL_send_data(unsigned char type, long *data)
@@ -203,7 +204,8 @@ void eMPL_send_data(unsigned char type, long *data)
     default:
         return;
     }
-	HAL_UART_Transmit(&hlpuart1, (uint8_t *) out, sizeof(out), 100);
+    printf("aaaa2\n\r");
+	printf("%s\n\r",out);
 }
 
 /**

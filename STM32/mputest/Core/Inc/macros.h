@@ -93,4 +93,10 @@ struct hal_s {
 	unsigned short dmp_features;
 	struct rx_s rx;
 };
+
+struct angles_t{
+	float roll;
+	float pitch;
+	float yaw;
+};
 #endif /* INC_MACROS_H_ */

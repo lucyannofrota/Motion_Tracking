@@ -35,8 +35,9 @@
 #define MPU6050
 extern I2C_HandleTypeDef hi2c1;
 extern UART_HandleTypeDef hlpuart1;
-#define i2c_write(slave_addr,reg_addr,length,data) 	HAL_I2C_Master_Transmit(&hi2c1, slave_addr<<1, data, 1, HAL_MAX_DELAY)
-#define i2c_read(slave_addr,reg_addr,length,data)   HAL_I2C_Master_Receive(&hi2c1, slave_addr<<1, data, 1, HAL_MAX_DELAY)
+
+#define i2c_write(slave_addr,reg_addr,length,data) 	HAL_I2C_Mem_Write(&hi2c1, slave_addr<<1, reg_addr, 1, data, length, HAL_MAX_DELAY)
+#define i2c_read(slave_addr,reg_addr,length,data)   HAL_I2C_Mem_Read(&hi2c1, slave_addr<<1, reg_addr, 1, data, length, HAL_MAX_DELAY)
 #define delay_ms(x)    HAL_Delay(x)
 
 
