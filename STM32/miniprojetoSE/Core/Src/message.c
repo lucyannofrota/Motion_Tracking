@@ -7,7 +7,7 @@
 
 #include "Message.h"
 #include "main.h"
-#include "macros.h"
+
 uint8_t * pointer;
 uint8_t   msgStr[64];
 
@@ -53,21 +53,12 @@ uint8_t available(){
 	return &msgStr[64 - 1] - pointer + 1;
 }
 
-void sendPose(){
+void sendPose(struct angles_t angle){
 	reset();
 	addChar('P');
-	/*addInt(0x4D);
-	addInt(0x4E);
-	addInt(0x4F);
-	addInt(0x50);
-	addInt(0x51);
-	addInt(0x52);*/
-	addInt(32767);
-	addInt(126);
-	addInt(0b011);
-	addInt(0b011 << 8);
-	addInt(253);
-	addInt(-32768);
+	addInt(angle.roll * 100);
+	addInt(angle.pitch * 100);
+	addInt(angle.yaw * 100);
 	addChar('}');
 	addChar('\n');
 	writeBytes();

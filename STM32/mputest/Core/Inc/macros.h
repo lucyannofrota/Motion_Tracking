@@ -8,32 +8,10 @@
 #ifndef INC_MACROS_H_
 #define INC_MACROS_H_
 
+
 struct platform_data_s {
     signed char orientation[9];
 };
-
-/* The sensors can be mounted onto the board in any orientation. The mounting
- * matrix seen below tells the MPL how to rotate the raw data from the
- * driver(s).
- * TODO: The following matrices refer to the configuration on internal test
- * boards at Invensense. If needed, please modify the matrices to match the
- * chip-to-body matrix for your particular set up.
- */
-
-#if defined MPU9150 || defined MPU9250
-static struct platform_data_s compass_pdata = {
-    .orientation = { 0, 1, 0,
-                     1, 0, 0,
-                     0, 0, -1}
-};
-#define COMPASS_ENABLED 1
-#else
-static struct platform_data_s gyro_pdata = {
-    .orientation = { 1, 0, 0,
-                     0, 1, 0,
-                     0, 0, 1}
-};
-#endif
 
 #define MPU6050 1
 //#define MPU9150 1
@@ -49,7 +27,6 @@ static struct platform_data_s gyro_pdata = {
 #define PRINT_LINEAR_ACCEL (0x100)
 #define PRINT_GRAVITY_VECTOR (0x200)
 
-volatile uint32_t hal_timestamp = 0;
 #define ACCEL_ON        (0x01)
 #define GYRO_ON         (0x02)
 #define COMPASS_ON      (0x04)
@@ -67,12 +44,10 @@ volatile uint32_t hal_timestamp = 0;
 #define TEMP_READ_MS    (500)
 #define COMPASS_READ_MS (100)
 
-
-unsigned char *mpl_key = (unsigned char*)"eMPL 5.1";
-static void get_tick_count(unsigned long *time){
-	*time = HAL_GetTick();
-}
-
+#undef MPL_LOGI
+#define MPL_LOGI(...) printf(__VA_ARGS__)
+#undef MPL_LOGE
+#define MPL_LOGE(...) printf(__VA_ARGS__)
 
 struct rx_s {
 	unsigned char header[3];

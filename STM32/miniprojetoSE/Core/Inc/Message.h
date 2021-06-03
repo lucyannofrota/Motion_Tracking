@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include "macros.h"
 
 void reset();
 void addChar(char data);
@@ -20,6 +20,6 @@ uint8_t available(void);
 
 void writeBytes();
 void setTemp();
-void sendPose();
+void sendPose(struct angles_t angle);
 uint8_t length();
 #endif /* SRC_MESSAGE_H_ */
