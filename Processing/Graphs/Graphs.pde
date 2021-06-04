@@ -1,3 +1,8 @@
+import processing.serial.*;
+import java.awt.event.KeyEvent;
+import java.io.IOException;
+import grafica.*;
+
 public class myGraphWindow extends PApplet {
 
   int time = 0; //time in ms
@@ -16,6 +21,7 @@ public class myGraphWindow extends PApplet {
 
   myGraphWindow() {
     super();
+    GraphsH = this;
     PApplet.runSketch(new String[]{this.getClass().getName()}, this);
   }
 

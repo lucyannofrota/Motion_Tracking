@@ -9,8 +9,6 @@ String data="";
 
 int lm;
 
-final int buffReadUntil = 17;
-
 float roll, pitch, yaw;
 Pose CubePose = new Pose(0,0,0,0,0,0);
 

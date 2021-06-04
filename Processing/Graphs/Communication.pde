@@ -85,8 +85,8 @@ void serialEvent (Serial myPort) {
       switch(COMBuff[0]){
         case 'P':
           COMBuff = myPort.readBytes(6 * 2 + 1);
-          readPose(COMBuff,of,CubePose);
-          CubePose.print();
+          //readPose(COMBuff,of,CubePose);
+          //CubePose.print();
           println("Time:" + (ac-lm));
           lm = ac;
           break;
@@ -95,7 +95,7 @@ void serialEvent (Serial myPort) {
           //println(COMBuff);
           int b = readSensor(COMBuff,of,sensor);
           //println(b);
-          PG.newData(sensor,b);
+          GraphsH.newData(sensor,b);
           //CubePose.print();
           println("Time:" + (ac-lm));
           lm = ac;
