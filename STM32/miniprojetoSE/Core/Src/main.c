@@ -26,8 +26,10 @@
 #include <string.h>
 #include <stdio.h>
 #include "../Inc/Message.h"
-#include "tm_stm32_mpu6050.h"
 #include "macros.h"
+#include "mpu.h"
+#include "inv_mpu.h"
+#include "inv_mpu_dmp_motion_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +59,7 @@ osThreadId_t TransmitTask_SeHandle;
 const osThreadAttr_t TransmitTask_Se_attributes = {
   .name = "TransmitTask_Se",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityNormal,
+  .priority = (osPriority_t) osPriorityLow1,
 };
 /* Definitions for TransmitTask_BT */
 osThreadId_t TransmitTask_BTHandle;
@@ -66,12 +68,12 @@ const osThreadAttr_t TransmitTask_BT_attributes = {
   .stack_size = 128 * 4,
   .priority = (osPriority_t) osPriorityLow,
 };
-/* Definitions for PingTask */
-osThreadId_t PingTaskHandle;
-const osThreadAttr_t PingTask_attributes = {
-  .name = "PingTask",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+/* Definitions for SensorTask */
+osThreadId_t SensorTaskHandle;
+const osThreadAttr_t SensorTask_attributes = {
+  .name = "SensorTask",
+  .stack_size = 256 * 4,
+  .priority = (osPriority_t) osPriorityNormal1,
 };
 /* Definitions for SR_Queue */
 osMessageQueueId_t SR_QueueHandle;
@@ -88,10 +90,17 @@ const osMessageQueueAttr_t BT_Queue_attributes = {
 uint8_t BT_BUFFER[BUFFER_LEN];
 uint8_t SR_BUFFER[BUFFER_LEN] = "";
 
-TM_MPU6050_t MPU6050;
-TM_MPU6050_Interrupt_t MPU6050_Interrupts;
 
 uint8_t read = 0;
+struct hal_s hal = {0};
+
+int _write(int file, char *ptr, int len)
+{
+	HAL_UART_Transmit(&hlpuart1, (uint8_t *) ptr, len, 10);
+	return len;
+}
+
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -103,7 +112,7 @@ static void MX_UART4_Init(void);
 static void MX_I2C1_Init(void);
 void StartTransmitTask_Serial(void *argument);
 void StartTransmitTask_BT(void *argument);
-void StartPingTask(void *argument);
+void StartSensorTask(void *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -151,9 +160,7 @@ int main(void)
   HAL_UART_Receive_IT(&huart4, BT_BUFFER, BUFFER_LEN);
 
 
-  if (TM_MPU6050_Init(&MPU6050, TM_MPU6050_Device_0, TM_MPU6050_Accelerometer_8G, TM_MPU6050_Gyroscope_250s) == TM_MPU6050_Result_Ok) {
-  		HAL_GPIO_WritePin(greenLED_GPIO_Port, greenLED_Pin, GPIO_PIN_SET);
-  }
+  if(MPU_init()) NVIC_SystemReset();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -173,10 +180,10 @@ int main(void)
 
   /* Create the queue(s) */
   /* creation of SR_Queue */
-  SR_QueueHandle = osMessageQueueNew (64, 1, &SR_Queue_attributes);
+  SR_QueueHandle = osMessageQueueNew (32, 1, &SR_Queue_attributes);
 
   /* creation of BT_Queue */
-  BT_QueueHandle = osMessageQueueNew (64, 1, &BT_Queue_attributes);
+  BT_QueueHandle = osMessageQueueNew (32, 1, &BT_Queue_attributes);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -189,11 +196,12 @@ int main(void)
   /* creation of TransmitTask_BT */
   TransmitTask_BTHandle = osThreadNew(StartTransmitTask_BT, NULL, &TransmitTask_BT_attributes);
 
-  /* creation of PingTask */
-  PingTaskHandle = osThreadNew(StartPingTask, NULL, &PingTask_attributes);
+  /* creation of SensorTask */
+  SensorTaskHandle = osThreadNew(StartSensorTask, NULL, &SensorTask_attributes);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
+
   /* USER CODE END RTOS_THREADS */
 
   /* USER CODE BEGIN RTOS_EVENTS */
@@ -213,28 +221,6 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  if(read == 1){
-		  read = 0;
-		  TM_MPU6050_ReadInterrupts(&MPU6050, &MPU6050_Interrupts);
-
-		  if(MPU6050_Interrupts.F.MotionDetection == 1){
-			  HAL_GPIO_WritePin(redLED_GPIO_Port, redLED_Pin, GPIO_PIN_SET);
-		  }
-		  if(MPU6050_Interrupts.F.DataReady == 1){
-			  TM_MPU6050_ReadAll(&MPU6050);
-			  char msg[500];
-			  sprintf(msg,"\rAccX: %hu, AccY: %hu, AccZ: %hu\n GyrX: %hu, GyrY: %hu, GyrZ:%hu\n Temp: %f\n ",MPU6050.Accelerometer_X,MPU6050.Accelerometer_Y,MPU6050.Accelerometer_Z,MPU6050.Gyroscope_X,MPU6050.Gyroscope_Y,MPU6050.Gyroscope_Z, MPU6050.Temperature);
-			  transmit(msg);
-			  /* Raw data are available for use when needed */
-			  //MPU6050.Accelerometer_X;
-			  //MPU6050.Accelerometer_Y;
-			  //MPU6050.Accelerometer_Z;
-			  //MPU6050.Gyroscope_X;
-			  //MPU6050.Gyroscope_Y;
-			  //MPU6050.Gyroscope_Z;
-			  //MPU6050.Temperature;
-		  }
-	  }
   }
   /* USER CODE END 3 */
 }
@@ -369,7 +355,7 @@ static void MX_LPUART1_UART_Init(void)
   hlpuart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
   hlpuart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   hlpuart1.FifoMode = UART_FIFOMODE_DISABLE;
-  if (HAL_UART_Init(&hlpuart1) != HAL_OK)
+  if (HAL_RS485Ex_Init(&hlpuart1, UART_DE_POLARITY_HIGH, 0, 0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -506,6 +492,10 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
+	if(GPIO_Pin == GPIO_PIN_6)	hal.new_gyro = 1;
+}
+
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if(huart == &hlpuart1){
 		osMessageQueuePut(SR_QueueHandle, SR_BUFFER, 0, 0);
@@ -517,11 +507,8 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	}
 }
 
-void TM_EXTI_Handler(uint16_t GPIO_Pin) {
-	/* Check for PIN */
-	/* Read interrupts from MPU6050 */
-	read = 1;
-}
+
+
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_StartTransmitTask_Serial */
@@ -550,8 +537,6 @@ void StartTransmitTask_Serial(void *argument)
 				strncat(msg_sr, c, 1);
 			}
 			transmit(msg_sr);
-			//HAL_UART_Transmit(&huart4, (uint8_t *)msg_sr, sizeof(msg_sr), 100);
-			//HAL_UART_Transmit(&hlpuart1, (uint8_t *)msg_sr, sizeof(msg_sr), 100);
 		}
 		osDelay(100);
 	}
@@ -589,24 +574,25 @@ void StartTransmitTask_BT(void *argument)
   /* USER CODE END StartTransmitTask_BT */
 }
 
-/* USER CODE BEGIN Header_StartPingTask */
+/* USER CODE BEGIN Header_StartSensorTask */
 /**
-* @brief Function implementing the PingTask thread.
+* @brief Function implementing the SensorTask thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_StartPingTask */
-void StartPingTask(void *argument)
+/* USER CODE END Header_StartSensorTask */
+void StartSensorTask(void *argument)
 {
-  /* USER CODE BEGIN StartPingTask */
+  /* USER CODE BEGIN StartSensorTask */
+
 
   /* Infinite loop */
   for(;;)
   {
-	  sendPose();
-	  osDelay(150);
+	readSensorData();
+	osDelay(1);
   }
-  /* USER CODE END StartPingTask */
+  /* USER CODE END StartSensorTask */
 }
 
  /**
@@ -637,6 +623,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
+	printf("ERROR! \n\r");
   /* User can add his own implementation to report the HAL error return state */
   __disable_irq();
   while (1)
