@@ -9,6 +9,8 @@ String data="";
 
 int lm;
 
+final int buffReadUntil = 17;
+
 float roll, pitch, yaw;
 Pose CubePose = new Pose(0,0,0,0,0,0);
 
@@ -16,16 +18,18 @@ camera_Obj cam;
 
 body bd1 = new body(170); 
 
+myGraphWindow PG = new myGraphWindow();
+
 void settings(){
   size (800/800, 800/800, P3D);
-  myPort = new Serial(this, "COM5", 38400);
+  myPort = new Serial(this, "COM15", 38400);
   delay(1000);
-  myPort.buffer(16);
+  myPort.buffer(buffReadUntil);
 }
 
 void setup() {
   surface.setTitle("Main Window");
-  myGraphWindow PG = new myGraphWindow();
+
 
   lm = millis();
   

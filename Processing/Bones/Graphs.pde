@@ -126,7 +126,7 @@ public class myGraphWindow extends PApplet {
     Sensor1.toggleInd();
   }
 
-  void newData(IMU sens, int nS) {
+  public void newData(IMU sens, int nS) {
     int elt;
     if (time == 0) {
       time = millis();
@@ -153,7 +153,10 @@ public class myGraphWindow extends PApplet {
 
   class PlotGroupIMU {
     myGPlot ax, ay, az;
-    myGPlot gx, gy, gz;
+    myGPlot rx, ry, rz;
+    
+    int Npoints = 0;
+    final int NdataPlot = 100;
 
     PlotGroupIMU(PApplet parent) {
       final float Width = 1920, Height = 1080;
@@ -176,29 +179,38 @@ public class myGraphWindow extends PApplet {
       az.setPositionDim(5+0*wid,3*hei+5-1,wid,hei);
       az.toggleInd();
       
-      gx = new myGPlot(parent);
-      gx.setTitleText("Gyro X");
-      gx.setPositionDim(5+1*wid+4,1*hei+5,wid,hei);
-      gx.toggleInd();
+      rx = new myGPlot(parent);
+      rx.setTitleText("ryro X");
+      rx.setPositionDim(5+1*wid+4,1*hei+5,wid,hei);
+      rx.toggleInd();
       
-      gy = new myGPlot(parent);
-      gy.setTitleText("Gyro Y");
-      gy.setPositionDim(5+1*wid+4,2*hei+5,wid,hei);
-      gy.toggleInd();
+      ry = new myGPlot(parent);
+      ry.setTitleText("ryro Y");
+      ry.setPositionDim(5+1*wid+4,2*hei+5,wid,hei);
+      ry.toggleInd();
       
-      gz = new myGPlot(parent);
-      gz.setTitleText("Gyro Z");
-      gz.setPositionDim(5+1*wid+4,3*hei+5-1,wid,hei);
-      gz.toggleInd();
+      rz = new myGPlot(parent);
+      rz.setTitleText("ryro Z");
+      rz.setPositionDim(5+1*wid+4,3*hei+5-1,wid,hei);
+      rz.toggleInd();
     }
 
     void addPoint(int time, IMU sens) {
+      Npoints++;
       ax.addPoint(new GPoint(time, sens.ax));
       ay.addPoint(new GPoint(time,sens.ay));
       az.addPoint(new GPoint(time,sens.az));
-      gx.addPoint(new GPoint(time,sens.gx));
-      gy.addPoint(new GPoint(time,sens.gy));
-      gz.addPoint(new GPoint(time,sens.gz));
+      rx.addPoint(new GPoint(time,sens.rx));
+      ry.addPoint(new GPoint(time,sens.ry));
+      rz.addPoint(new GPoint(time,sens.rz));
+      if(Npoints >= NdataPlot){
+        ax.removePoint(0);
+        ay.removePoint(0);
+        az.removePoint(0);
+        rx.removePoint(0);
+        ry.removePoint(0);
+        rz.removePoint(0);
+      }
     }
 
 
@@ -206,14 +218,14 @@ public class myGraphWindow extends PApplet {
       ax.Draw();
       ay.Draw();
       az.Draw();
-      gx.Draw();
-      gy.Draw();
-      gz.Draw();
+      rx.Draw();
+      ry.Draw();
+      rz.Draw();
       //drawPlot(ay);
       //drawPlot(az);
-      //drawPlot(gx);
-      //drawPlot(gy);
-      //drawPlot(gz);
+      //drawPlot(rx);
+      //drawPlot(ry);
+      //drawPlot(rz);
     }
 
     void drawPlot(GPlot plot) {
@@ -233,9 +245,9 @@ public class myGraphWindow extends PApplet {
       ax.toggleInd();
       ay.toggleInd();
       az.toggleInd();
-      gx.toggleInd();
-      gy.toggleInd();
-      gz.toggleInd();
+      rx.toggleInd();
+      ry.toggleInd();
+      rz.toggleInd();
     }
   }
 
@@ -323,7 +335,11 @@ public class myGraphWindow extends PApplet {
       //plot.drawTopAxis();
       //plot.drawRightAxis();
       drawTitle();
-      getMainLayer().drawLines();
+      try{
+        drawLines();
+      }catch(IndexOutOfBoundsException e){
+        e.printStackTrace(); //<>//
+      }
       if (hasInd) indicator.draw();
       endDraw();
     }
