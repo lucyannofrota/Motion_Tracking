@@ -17,6 +17,8 @@
 extern struct hal_s hal;
 volatile uint32_t hal_timestamp = 0;
 unsigned char *mpl_key = (unsigned char*)"eMPL 5.1";
+extern struct angles_t angle;
+extern struct accel_t accel;
 
 int MPU_init(){
 	unsigned char accel_fsr;
@@ -88,18 +90,18 @@ struct angles_t toEuler(float qw,float qx, float qy, float qz){
 	//roll
 	double r1 = 2 * (qw * qx + qy * qz);
 	double r2 = 1 - 2 * (qx * qx + qy * qy);
-	angle.roll = atan2(r1,r2);
+	angle.roll = 100*atan2(r1,r2);
 
 	double p1 = 2 * (qw * qy - qz * qx);
 	if (fabs(p1) >= 1)
-		angle.pitch = copysign(M_PI / 2, p1); // use 90 degrees if out of range
+		angle.pitch = 100*copysign(M_PI / 2, p1); // use 90 degrees if out of range
 	else
-		angle.pitch = asin(p1);
+		angle.pitch = 100*asin(p1);
 
 	// yaw (z-axis rotation)
 	double siny_cosp = 2 * (qw * qz + qx * qy);
 	double cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
-	angle.yaw = atan2(siny_cosp, cosy_cosp);
+	angle.yaw = 100*atan2(siny_cosp, cosy_cosp);
 
 	return angle;
 }
@@ -187,8 +189,7 @@ void readSensorData(void){
 	if (hal.new_gyro && hal.dmp_on) {
 		short gyro[3], accel_short[3], sensors;
 		unsigned char more;
-		long accel[3], quat[4];
-
+		long quat[4];
 		dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
 
 		if (!more)
@@ -200,25 +201,26 @@ void readSensorData(void){
 					gyro[1]/65536.f,
 					gyro[2]/65536.f);*/
 		}
-		if (sensors & INV_XYZ_ACCEL) {/*
-			accel[0] = (long)accel_short[0];
-			accel[1] = (long)accel_short[1];
-			accel[2] = (long)accel_short[2];
+		if(sensors & INV_XYZ_ACCEL || sensors & INV_WXYZ_QUAT){
+			if (sensors & INV_XYZ_ACCEL) {
+				accel.accel_x = accel_short[0];//65536.f;
+				accel.accel_y = accel_short[1];//65536.f;
+				accel.accel_z = accel_short[2];//65536.f;
+				/*
+				printf("accel: %7.4f %7.4f %7.4f\n",
+						1000*accel.accel_x/65536.f,
+						1000*accel.accel_y/65536.f,
+						1000*accel.accel_z/65536.f);*/
 
-			printf("accel: %7.4f %7.4f %7.4f\n",
-					accel[0]/65536.f,
-					accel[1]/65536.f,
-					accel[2]/65536.f);*/
-		}
-		if(sensors & INV_WXYZ_QUAT)
-			{
-				struct angles_t angle = {0};
-				angle = toEuler(quat[0], quat[1], quat[2], quat[3]);
-				/*printf("pitch = %f\r\n", angle.pitch);
-				printf("roll = %f\r\n",angle.roll);
-				printf("yaw = %f\r\n",angle.yaw);*/
-				sendPose(angle);
 			}
+			if(sensors & INV_WXYZ_QUAT)
+				{
+					angle = toEuler(quat[0], quat[1], quat[2], quat[3]);
+					//printf("pitch = %i\r\n", angle.pitch);
+					//printf("yaw = %i\r\n",angle.yaw);
+				}
+			//sendPose(angle,accel);
+		}
 	}
 }
 

@@ -32,3 +32,34 @@ void readPose(byte[] data,offset offset,Pose pos){
   pos.Ry = readInt(data,offset);
   pos.Rz = readInt(data,offset);
 }
+
+byte[] COMBuff = new byte[64];
+
+void serialEvent (Serial myPort) { 
+  int ac = millis(); 
+   delay(10);
+  int charCount = 6;
+  final int maxbuf = 16;
+  offset of = new offset(0);
+  int len = myPort.available();
+  
+  if (len > 0) {
+    if(len < maxbuf) delay(10);
+    COMBuff = myPort.readBytes(1);
+    //println(c);
+    if(COMBuff[0] == '{'){
+      COMBuff = myPort.readBytes(1);
+      //println(c);
+      switch(COMBuff[0]){
+        case 'P':
+          COMBuff = myPort.readBytes(charCount * 2);
+          readPose(COMBuff,of,CubePose);
+          CubePose.print();
+          println("Time:" + (ac-lm));
+          lm = ac;
+          break;
+      }
+    }
+    
+  }
+}

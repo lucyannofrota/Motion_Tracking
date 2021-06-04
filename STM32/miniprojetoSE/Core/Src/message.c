@@ -7,9 +7,10 @@
 
 #include "Message.h"
 #include "main.h"
-
+#include <math.h>
 uint8_t * pointer;
 uint8_t   msgStr[64];
+extern uint16_t counter;
 
 extern UART_HandleTypeDef hlpuart1;
 extern UART_HandleTypeDef huart4;
@@ -53,12 +54,18 @@ uint8_t available(){
 	return &msgStr[64 - 1] - pointer + 1;
 }
 
-void sendPose(struct angles_t angle){
+void sendPose(struct angles_t angle, struct accel_t accel){
 	reset();
 	addChar('P');
-	addInt(angle.roll * 100);
-	addInt(angle.pitch * 100);
-	addInt(angle.yaw * 100);
+	addInt(counter);
+	addInt(0);
+	addInt(0);
+	addInt(32767);
+	addInt(400);
+	addInt(-32768);
+	//addInt(round(1.8*angle.roll/M_PI));
+	//addInt(round(1.8*angle.pitch/M_PI));
+	//addInt(round(1.8*angle.yaw/M_PI));
 	addChar('}');
 	addChar('\n');
 	writeBytes();

@@ -7,6 +7,11 @@ class Pose{
     this.Rx = rx_; this.Ry = ry_; this.Rz = rz_;
   }
   
+  void setZero(){
+    this.X = 0; this.Y = 0; this.Z = 0;
+    this.Rx = 0; this.Ry = 0; this.Rz = 0;
+  }
+  
   void print(){
     println("Pose: \nT -> ("+this.X+','+this.Y+','+this.Z+")\nR -> ("+this.Rx+','+this.Ry+','+this.Rz+")\n");
   }

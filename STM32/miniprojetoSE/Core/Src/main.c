@@ -25,6 +25,7 @@
 /* USER CODE BEGIN Includes */
 #include <string.h>
 #include <stdio.h>
+#include <math.h>
 #include "../Inc/Message.h"
 #include "macros.h"
 #include "mpu.h"
@@ -54,19 +55,12 @@ UART_HandleTypeDef hlpuart1;
 UART_HandleTypeDef huart4;
 DMA_HandleTypeDef hdma_lpuart1_rx;
 
-/* Definitions for TransmitTask_Se */
-osThreadId_t TransmitTask_SeHandle;
-const osThreadAttr_t TransmitTask_Se_attributes = {
-  .name = "TransmitTask_Se",
-  .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow1,
-};
 /* Definitions for TransmitTask_BT */
 osThreadId_t TransmitTask_BTHandle;
 const osThreadAttr_t TransmitTask_BT_attributes = {
   .name = "TransmitTask_BT",
   .stack_size = 128 * 4,
-  .priority = (osPriority_t) osPriorityLow,
+  .priority = (osPriority_t) osPriorityLow1,
 };
 /* Definitions for SensorTask */
 osThreadId_t SensorTaskHandle;
@@ -74,16 +68,6 @@ const osThreadAttr_t SensorTask_attributes = {
   .name = "SensorTask",
   .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityNormal1,
-};
-/* Definitions for SR_Queue */
-osMessageQueueId_t SR_QueueHandle;
-const osMessageQueueAttr_t SR_Queue_attributes = {
-  .name = "SR_Queue"
-};
-/* Definitions for BT_Queue */
-osMessageQueueId_t BT_QueueHandle;
-const osMessageQueueAttr_t BT_Queue_attributes = {
-  .name = "BT_Queue"
 };
 /* USER CODE BEGIN PV */
 
@@ -99,7 +83,10 @@ int _write(int file, char *ptr, int len)
 	HAL_UART_Transmit(&hlpuart1, (uint8_t *) ptr, len, 10);
 	return len;
 }
+struct angles_t angle = {0,0,0};
+struct accel_t accel = {0,0,0};
 
+uint16_t counter = 0;
 
 /* USER CODE END PV */
 
@@ -110,7 +97,6 @@ static void MX_DMA_Init(void);
 static void MX_LPUART1_UART_Init(void);
 static void MX_UART4_Init(void);
 static void MX_I2C1_Init(void);
-void StartTransmitTask_Serial(void *argument);
 void StartTransmitTask_BT(void *argument);
 void StartSensorTask(void *argument);
 
@@ -178,21 +164,11 @@ int main(void)
   /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
-  /* Create the queue(s) */
-  /* creation of SR_Queue */
-  SR_QueueHandle = osMessageQueueNew (32, 1, &SR_Queue_attributes);
-
-  /* creation of BT_Queue */
-  BT_QueueHandle = osMessageQueueNew (32, 1, &BT_Queue_attributes);
-
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* creation of TransmitTask_Se */
-  TransmitTask_SeHandle = osThreadNew(StartTransmitTask_Serial, NULL, &TransmitTask_Se_attributes);
-
   /* creation of TransmitTask_BT */
   TransmitTask_BTHandle = osThreadNew(StartTransmitTask_BT, NULL, &TransmitTask_BT_attributes);
 
@@ -453,10 +429,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   HAL_PWREx_EnableVddIO2();
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
@@ -465,18 +441,18 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(greenLED_GPIO_Port, greenLED_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pins : Button_Pin PC6 */
+  GPIO_InitStruct.Pin = Button_Pin|GPIO_PIN_6;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
   /*Configure GPIO pin : redLED_Pin */
   GPIO_InitStruct.Pin = redLED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(redLED_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PC6 */
-  GPIO_InitStruct.Pin = GPIO_PIN_6;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : greenLED_Pin */
   GPIO_InitStruct.Pin = greenLED_Pin;
@@ -489,59 +465,21 @@ static void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+
 }
 
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin == GPIO_PIN_6)	hal.new_gyro = 1;
+	if(GPIO_Pin == Button_Pin) counter++;
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
-	if(huart == &hlpuart1){
-		osMessageQueuePut(SR_QueueHandle, SR_BUFFER, 0, 0);
-		HAL_UART_Receive_DMA(&hlpuart1, SR_BUFFER, BUFFER_LEN);
-	}
-	if(huart->Instance == huart4.Instance){
-		osMessageQueuePut(BT_QueueHandle, BT_BUFFER, 0, 0);
-		HAL_UART_Receive_IT(&huart4, BT_BUFFER, BUFFER_LEN);
-	}
-}
 
 
 
 /* USER CODE END 4 */
-
-/* USER CODE BEGIN Header_StartTransmitTask_Serial */
-/**
-  * @brief  Function implementing the TransmitTask_Se thread.
-  * @param  argument: Not used
-  * @retval None
-  */
-/* USER CODE END Header_StartTransmitTask_Serial */
-void StartTransmitTask_Serial(void *argument)
-{
-  /* USER CODE BEGIN 5 */
-  /* Infinite loop */
-	char msg_sr[64];
-	uint16_t count_sr = 0;
-	char c[1];
-
-  /* Infinite loop */
-	for(;;)
-	{
-		memset(msg_sr,0,64);
-		count_sr = osMessageQueueGetCount(SR_QueueHandle);
-		if(count_sr > 0){
-			for (int i = 0; i < count_sr; i++) {
-				osMessageQueueGet(SR_QueueHandle, c, 0, 100);
-				strncat(msg_sr, c, 1);
-			}
-			transmit(msg_sr);
-		}
-		osDelay(100);
-	}
-  /* USER CODE END 5 */
-}
 
 /* USER CODE BEGIN Header_StartTransmitTask_BT */
 /**
@@ -552,26 +490,18 @@ void StartTransmitTask_Serial(void *argument)
 /* USER CODE END Header_StartTransmitTask_BT */
 void StartTransmitTask_BT(void *argument)
 {
-  /* USER CODE BEGIN StartTransmitTask_BT */
+  /* USER CODE BEGIN 5 */
+  /* Infinite loop */
 
-	char msg_bt[64];
-	uint16_t count_bt = 0;
-	char b[1];
   /* Infinite loop */
 	for(;;)
 	{
-		memset(msg_bt,0,64);
-		count_bt = osMessageQueueGetCount(BT_QueueHandle);
-		if(count_bt > 0){
-			for (int j = 0; j < count_bt; j++) {
-				osMessageQueueGet(BT_QueueHandle, b, 0, 100);
-				strncat(msg_bt,b,1);
-			}
-			transmit(msg_bt);
-		}
-		osDelay(100);
+		sendPose(angle, accel);
+		printf("counter = %i\r\n", counter);
+		//printf("roll = %f\r\n",1.8*angle.roll/M_PI);
+		osDelay(150);
 	}
-  /* USER CODE END StartTransmitTask_BT */
+  /* USER CODE END 5 */
 }
 
 /* USER CODE BEGIN Header_StartSensorTask */

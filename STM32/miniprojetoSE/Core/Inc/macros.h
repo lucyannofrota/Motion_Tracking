@@ -78,9 +78,14 @@ struct hal_s {
 };
 
 struct angles_t{
-	float roll;
-	float pitch;
-	float yaw;
+	int roll;
+	int pitch;
+	int yaw;
+};
+struct accel_t{
+	int accel_x;
+	int accel_y;
+	int accel_z;
 };
 
 #undef MPL_LOGI
