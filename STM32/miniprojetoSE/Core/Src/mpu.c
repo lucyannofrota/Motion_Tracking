@@ -203,21 +203,13 @@ void readSensorData(void){
 		}
 		if(sensors & INV_XYZ_ACCEL || sensors & INV_WXYZ_QUAT){
 			if (sensors & INV_XYZ_ACCEL) {
-				accel.accel_x = accel_short[0];//65536.f;
-				accel.accel_y = accel_short[1];//65536.f;
-				accel.accel_z = accel_short[2];//65536.f;
-				/*
-				printf("accel: %7.4f %7.4f %7.4f\n",
-						1000*accel.accel_x/65536.f,
-						1000*accel.accel_y/65536.f,
-						1000*accel.accel_z/65536.f);*/
-
+				accel.accel_x = accel_short[0];
+				accel.accel_y = accel_short[1];
+				accel.accel_z = accel_short[2];
 			}
 			if(sensors & INV_WXYZ_QUAT)
 				{
 					angle = toEuler(quat[0], quat[1], quat[2], quat[3]);
-					//printf("pitch = %i\r\n", angle.pitch);
-					//printf("yaw = %i\r\n",angle.yaw);
 				}
 			//sendPose(angle,accel);
 		}

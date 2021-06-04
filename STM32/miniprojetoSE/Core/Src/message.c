@@ -57,15 +57,15 @@ uint8_t available(){
 void sendPose(struct angles_t angle, struct accel_t accel){
 	reset();
 	addChar('P');
-	addInt(counter);
-	addInt(0);
-	addInt(0);
-	addInt(32767);
-	addInt(400);
-	addInt(-32768);
-	//addInt(round(1.8*angle.roll/M_PI));
-	//addInt(round(1.8*angle.pitch/M_PI));
-	//addInt(round(1.8*angle.yaw/M_PI));
+	addInt(accel.accel_x);
+	addInt(accel.accel_y);
+	addInt(accel.accel_z);
+	//addInt(32767);
+	//addInt(400);
+	//addInt(-32768);
+	addInt(round(1.8*angle.roll/M_PI));
+	addInt(round(1.8*angle.pitch/M_PI));
+	addInt(round(1.8*angle.yaw/M_PI));
 	addChar('}');
 	addChar('\n');
 	writeBytes();

@@ -18,9 +18,9 @@ body bd1 = new body(170);
 
 void settings(){
   size (800/800, 800/800, P3D);
-  myPort = new Serial(this, "COM9", 38400);
+  myPort = new Serial(this, "COM5", 38400);
   delay(1000);
-  myPort.bufferUntil('\n');
+  myPort.buffer(16);
 }
 
 void setup() {

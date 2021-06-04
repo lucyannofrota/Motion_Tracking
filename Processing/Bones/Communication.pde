@@ -35,30 +35,33 @@ void readPose(byte[] data,offset offset,Pose pos){
 
 byte[] COMBuff = new byte[64];
 
+
 void serialEvent (Serial myPort) {
-  IMU sensor = new IMU();
-  //Implementar metodos para enviar a recebida pelo sensors
+  //IMU sensor = new IMU();
   int ac = millis(); 
-  //println("Time:" + (ac-lm));
-  lm = ac;
+   delay(10);
   int charCount = 6;
+  final int maxbuf = 16;
   offset of = new offset(0);
-  if (myPort.available()>0) {
-    byte c = byte(myPort.read());
+  int len = myPort.available();
+  
+  if (len > 0) {
+    if(len < maxbuf) delay(10);
+    COMBuff = myPort.readBytes(1);
     //println(c);
-    if(c == '{'){
-      c = byte(myPort.read());
+    if(COMBuff[0] == '{'){
+      COMBuff = myPort.readBytes(1);
       //println(c);
-      switch(c){
+      switch(COMBuff[0]){
         case 'P':
           COMBuff = myPort.readBytes(charCount * 2);
           readPose(COMBuff,of,CubePose);
-          CubePose.setZero();
+          CubePose.print();
+          println("Time:" + (ac-lm));
+          lm = ac;
           break;
       }
     }
-    else{
-      print(c);
-    }
+    
   }
 }
