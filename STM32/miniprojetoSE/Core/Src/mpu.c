@@ -88,21 +88,28 @@ int MPU_init(){
 struct angles_t toEuler(float qw,float qx, float qy, float qz){
 	struct angles_t angle;
 	//roll
-	double r1 = 2 * (qw * qx + qy * qz);
-	double r2 = 1 - 2 * (qx * qx + qy * qy);
-	angle.roll = 100*atan2(r1,r2);
-
-	double p1 = 2 * (qw * qy - qz * qx);
-	if (fabs(p1) >= 1)
-		angle.pitch = 100*copysign(M_PI / 2, p1); // use 90 degrees if out of range
-	else
-		angle.pitch = 100*asin(p1);
-
-	// yaw (z-axis rotation)
-	double siny_cosp = 2 * (qw * qz + qx * qy);
-	double cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
-	angle.yaw = 100*atan2(siny_cosp, cosy_cosp);
-
+//	float r1 = 2 * (qw * qx + qy * qz);
+//	float r2 = 1 - 2 * (qx * qx + qy * qy);
+//	angle.roll = 180*atan2(r1,r2)/M_PI;
+//
+//	float p1 = 2 * (qw * qy - qz * qx);
+//	if (fabs(p1) >= 1)
+//		angle.pitch = 100*copysignf(M_PI / 2, p1); // use 90 degrees if out of range
+//	else
+//		angle.pitch = 180*asin(p1)/M_PI;
+//
+//	// yaw (z-axis rotation)
+//	float siny_cosp = 2 * (qw * qz + qx * qy);
+//	float cosy_cosp = 1 - 2 * (qy * qy + qz * qz);
+//	angle.yaw = 180*atan2(siny_cosp, cosy_cosp)/M_PI;
+//
+//	return angle;
+	float gx = 2 * (qx*qz - qw*qy);
+	float gy = 2 * (qw*qx + qy*qz);
+	float gz = qw*qw - qx*qx - qy*qy + qz*qz;
+	angle.yaw = 180*atan2(2*qx*qy - 2*qw*qz, 2*qw*qw + 2*qx*qx - 1)/M_PI; // about Z axis
+	angle.pitch = 180*atan2(gx, sqrt(gy*gy + gz*gz))/M_PI; // about Y axis
+	angle.roll = 180*atan2(gy, gz)/M_PI; // about X axis
 	return angle;
 }
 
@@ -203,13 +210,26 @@ void readSensorData(void){
 		}
 		if(sensors & INV_XYZ_ACCEL || sensors & INV_WXYZ_QUAT){
 			if (sensors & INV_XYZ_ACCEL) {
-				accel.accel_x = accel_short[0];
-				accel.accel_y = accel_short[1];
-				accel.accel_z = accel_short[2];
+				accel.accel_x = accel_short[0];//65536.f;
+				accel.accel_y = accel_short[1];//65536.f;
+				accel.accel_z = accel_short[2];//65536.f;
+				/*
+				printf("accel: %7.4f %7.4f %7.4f\n",
+						1000*accel.accel_x/65536.f,
+						1000*accel.accel_y/65536.f,
+						1000*accel.accel_z/65536.f);*/
+
 			}
 			if(sensors & INV_WXYZ_QUAT)
 				{
-					angle = toEuler(quat[0], quat[1], quat[2], quat[3]);
+					float norm = sqrt(quat[0]*quat[0] + quat[1]*quat[1] + quat[2]*quat[2] + quat[3]*quat[3]);
+					float qw = quat[0] / norm;
+					float qx = quat[1] / norm;
+					float qy = quat[2] / norm;
+					float qz = quat[3] / norm;
+					angle = toEuler(qw, qx, qy, qz);
+					//printf("pitch = %i\r\n", angle.pitch);
+					//printf("yaw = %i\r\n",angle.yaw);
 				}
 			//sendPose(angle,accel);
 		}
