@@ -1,11 +1,27 @@
+Position:
+
 Formato da mensagem:
-__________________________________________________
-|	|	|	|	  |	  |	 |
-|   {   |   T   |   P   |   ...   |   }   |  \n  |
-|_______|_______|_______|_________|_______|______|
+___________________________________________
+|	|	|	|	  |	  |
+|   {   |   P   | ...   |   }     |  \n   |
+|_______|_______|_______|_________|_______|
 Em que:
 	- Caracter inicio: '{' 
-	- T: Type
-	- N: Comprimento do payload,
-	- P: Payload
-	- Caracter fim: '}'
+	- P = "position"
+	- ...: Payload
+	- Caracteres fim: '}\n'
+
+
+Sensor: 
+
+Formato da mensagem:
+__________________________________________________
+|	|	|	|	  |	  |       |
+|   {   |   S   |   X   |   ...   |   }   |  \n   |
+|_______|_______|_______|_________|_______|_______|
+Em que:
+	- Caracter inicio: '{' 
+	- S = "sensor"
+	- X: Número do sensor
+	- ...: payload
+	- Caracteres fim: '}\n'

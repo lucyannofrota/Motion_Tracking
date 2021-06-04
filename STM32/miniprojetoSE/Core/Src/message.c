@@ -28,6 +28,13 @@ void addChar(char data){
 	}
 }
 
+void addShort(int8_t data){
+	if(available()){
+		memcpy(pointer, &data, sizeof(data));
+		pointer += sizeof(data);
+	}
+}
+
 void addInt(int16_t data){
 	if(available()){
 		memcpy(pointer, &data, sizeof(data));
@@ -48,6 +55,7 @@ uint8_t length(){
 
 void writeBytes(){
 	transmit_l(msgStr, length());
+	HAL_UART_Transmit(&hlpuart1, msgStr, length(), 100);
 }
 
 uint8_t available(){
@@ -60,9 +68,6 @@ void sendPose(struct angles_t angle, struct accel_t accel){
 	addInt(accel.accel_x);
 	addInt(accel.accel_y);
 	addInt(accel.accel_z);
-	//addInt(32767);
-	//addInt(400);
-	//addInt(-32768);
 	addInt(round(1.8*angle.roll/M_PI));
 	addInt(round(1.8*angle.pitch/M_PI));
 	addInt(round(1.8*angle.yaw/M_PI));
@@ -70,6 +75,22 @@ void sendPose(struct angles_t angle, struct accel_t accel){
 	addChar('\n');
 	writeBytes();
 }
+
+void sendSensor(struct angles_t angle, struct accel_t accel){
+	reset();
+	addChar('S');
+	addShort(1);
+	addInt(accel.accel_x);
+	addInt(accel.accel_y);
+	addInt(accel.accel_z);
+	addInt(round(1.8*angle.roll/M_PI));
+	addInt(round(1.8*angle.pitch/M_PI));
+	addInt(round(1.8*angle.yaw/M_PI));
+	addChar('}');
+	addChar('\n');
+	writeBytes();
+}
+
 
 void setTemp(){
 	reset();

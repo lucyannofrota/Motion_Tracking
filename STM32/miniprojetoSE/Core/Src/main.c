@@ -496,8 +496,8 @@ void StartTransmitTask_BT(void *argument)
   /* Infinite loop */
 	for(;;)
 	{
-		sendPose(angle, accel);
-		printf("counter = %i\r\n", counter);
+		sendSensor(angle, accel);
+		//printf("counter = %i\r\n", counter);
 		//printf("roll = %f\r\n",1.8*angle.roll/M_PI);
 		osDelay(150);
 	}
