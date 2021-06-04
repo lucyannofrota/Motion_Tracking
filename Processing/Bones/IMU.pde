@@ -1,19 +1,19 @@
 class IMU{
   public float ax,ay,az;
-  public float gx,gy,gz;
+  public float rx,ry,rz;
   
   IMU(){
     ax = 0; ay = 0; az = 0;
-    gx = 0; gy = 0; gz = 0;
+    rx = 0; ry = 0; rz = 0;
   }
   
-  IMU(float ax_, float ay_, float az_, float gx_, float gy_, float gz_){
+  IMU(float ax_, float ay_, float az_, float rx_, float ry_, float rz_){
     ax = ax_; ay = ay_; az = az_;
-    gx = gx_; gy = gy_; gz = gz_;
+    rx = rx_; ry = ry_; rz = rz_;
   }
   
-  void def(float ax_, float ay_, float az_, float gx_, float gy_, float gz_){
+  void def(float ax_, float ay_, float az_, float rx_, float ry_, float rz_){
     ax = ax_; ay = ay_; az = az_;
-    gx = gx_; gy = gy_; gz = gz_;
+    rx = rx_; ry = ry_; rz = rz_;
   }
 }

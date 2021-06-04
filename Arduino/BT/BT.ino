@@ -26,7 +26,7 @@ void loop(){
   
 }
 
-const int maxbuf = 16;
+const int maxbuf = 17;
 void readSerial(){
   memcpy(buf,0,BUFFER_LEN);
 //  int ac = millis();
@@ -41,9 +41,18 @@ btread:
       bluetooth.readBytes(&buf[1], 1);
       switch(buf[1]){
         case 'P':
-          bluetooth.readBytes(&buf[2], 6*2 + 2); // ler payload (14)
+          bluetooth.readBytes(&buf[2], 1+6*2 + 2); // ler payload (14)
           
-          Serial.write(buf,16);
+          Serial.write(buf,17);
+          
+//          Serial.print("T: ");
+//          Serial.println(ac-ln);
+//          ln = ac;
+          break; 
+        case 'S':
+          bluetooth.readBytes(&buf[2], 1+6*2 + 2); // ler payload (14)
+          
+          Serial.write(buf,17);
           
 //          Serial.print("T: ");
 //          Serial.println(ac-ln);
