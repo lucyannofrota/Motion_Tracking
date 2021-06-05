@@ -41,12 +41,12 @@ class Plane {
   }
   
   void display(){
+    
+    
+    d.translate(width/2, height/2, -100);
     d.rotateX(radians(sensor.rx));
     d.rotateZ(radians(sensor.ry));
     d.rotateY(radians(sensor.rz));
-    
-    d.translate(width/2, height/2, -100);
-    
     d.scale(90);
     d.scale(1,1,1.2);
     // body

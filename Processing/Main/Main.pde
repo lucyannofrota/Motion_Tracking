@@ -15,7 +15,7 @@ public enum _TAB {
     SENSOR
 }
 
-body bd1 = new body(170); 
+//body bd1 = new body(170, ); 
 
 _TAB currentTAB = _TAB.SENSOR;
 
@@ -63,7 +63,7 @@ void setup() {
   BackGround.endDraw();
 
   delay(5000);
-  myPort = new Serial(this, "COM3", 38400);
+  myPort = new Serial(this, "COM5", 38400);
   myPort.buffer(buffReadUntil);
 }
 
