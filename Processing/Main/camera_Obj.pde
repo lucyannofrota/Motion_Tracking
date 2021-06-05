@@ -40,7 +40,7 @@ class camera_Obj{
   }
   
   void update(){
-    if(currentTAB == _TAB.BODY){
+    if(currentTAB == _TAB.SENSOR){
       camera(x, y, z, x+cos(yaw)*cos(pitch), y+sin(pitch), z+sin(yaw)*cos(pitch), 0, -1, 0);
       perspective(fov, float(width)/float(height), 0.001, 1000000);
     }
