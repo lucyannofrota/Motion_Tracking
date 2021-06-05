@@ -498,7 +498,7 @@ void StartTransmitTask_BT(void *argument)
 	{
 		sendSensor(angle, accel);
 		//printf("counter = %i\r\n", counter);
-		//printf("roll = %f\r\n",1.8*angle.roll/M_PI);
+		//printf("PITCH = %f\r\n",1.8*angle.pitch/M_PI);
 		osDelay(150);
 	}
   /* USER CODE END 5 */
