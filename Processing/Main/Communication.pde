@@ -99,7 +99,7 @@ void serialEvent (Serial myPort) {
           //println(COMBuff);
           int b = readSensor(COMBuff,of,sensor);
           //println(b);
-          //PG.newData(sensor,b);
+          Graphs.newData(sensor,b);
           //CubePose.print();
           println("Time:" + (ac-lm));
           lm = ac;

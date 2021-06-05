@@ -2,19 +2,26 @@
 //PGraphics Boby3DFB;
 Body3DC Body3D;
 
-class Body3DC extends PGraphics{
+class Body3DC{
   
-  float DrawSize[];
+  int DrawSize[];
   
-  Body3DC(float [] Dsize){
-    super();
+  PGraphics IBuf;
+  
+  Body3DC(int [] Dsize){
     DrawSize = Dsize;
+    IBuf = createGraphics(DrawSize[0],DrawSize[1],P3D);
   }
   
-  void draw(){
-    this.beginDraw();
-    this.background(#676767);
-    this.endDraw();
+  PGraphics draw(){
+    //cam.update();
+    IBuf.beginDraw();
+    IBuf.background(#676767);
+    IBuf.fill(#F70A0A);
+    IBuf.box(70);
+    IBuf.lights();
+    IBuf.endDraw();
+    return IBuf;
   }
 }
 
