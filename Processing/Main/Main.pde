@@ -1,6 +1,8 @@
 import processing.serial.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
+
+
 import grafica.*;
 
 Serial myPort;
@@ -17,56 +19,60 @@ body bd1 = new body(170);
 
 _TAB currentTAB = _TAB.GRAPHS;
 
+PGraphics BackGround;
+
 void settings(){
   //fullScreen();
-  size(1920,1080-45,P3D);
-  myPort = new Serial(this, "COM5", 38400);
-  delay(1000);
-  myPort.buffer(buffReadUntil);
+  size(1920,1080-45,P2D);
 }
 
 final int screenWidth = 1920, screenHeight = 1080;
-int drawWidth, drawHeight;
+float DrawWindowPos[];
+float DrawWindowDim[];
+//int drawWidth, drawHeight;
 void setup(){
   surface.setTitle("Motion Tracking");
-  
-  drawWidth = floor(width-10); drawHeight = floor(height*0.9-25);
-  //GraphsFB = createGraphics(drawWidth,drawHeight,P2D);
-  Graphs = new GraphsC(new int[]{drawWidth,drawHeight});
-  //Boby3DFB = createGraphics(drawWidth,drawHeight,P3D);
-  //Body3D = new Body3DC(new float[]{drawWidth,drawHeight});
-  //Sensor3DFB = createGraphics(drawWidth,drawHeight,P3D);
-  //Sensor3D = new Sensor3DC(new float[]{drawWidth,drawHeight});
+  DrawWindowPos = new float[]{5,height*0.1+5};
+  DrawWindowDim = new float[]{width-10,height*0.9-25};
+  //drawWidth = floor(width-10); drawHeight = floor(height*0.9-25);
+  Graphs = new GraphsC(this,int(DrawWindowPos),int(DrawWindowDim));
+  Body3D = new Body3DC(int(DrawWindowDim));
+  Sensor3D = new Sensor3DC(int(DrawWindowDim));
   
   lm = millis();
   
-  cam = new camera_Obj(float(0),3*float(170)/4,float(100));
-  cam.update();
+  //cam = new camera_Obj(float(0),3*float(170)/4,float(100));
+  //cam.update();
   
-  img = createImage(Graphs.IBuf.width, Graphs.IBuf.height, ARGB);
-}
-
-PImage img;
-
-void draw(){
-  background(#41646A);
-  
+  BackGround = createGraphics(screenWidth,screenHeight);
   // Gradient
+  BackGround.beginDraw();
   for (int i = 0; i <= screenHeight; i++) {
       float inter = map(i, 0, screenHeight, 0, 1);
       color c = lerpColor(#495558, #4695A2, inter);
-      stroke(c);
-      line(0, i, screenWidth, i);
+      BackGround.stroke(c);
+      BackGround.line(0, i, screenWidth, i);
   }
+  BackGround.endDraw();
+  
+  delay(5000);
+  myPort = new Serial(this, "COM15", 38400);
+  myPort.buffer(buffReadUntil);
+}
+
+void draw(){
+  //background(#41646A);
+  image(BackGround,0,0);
   
   switch(currentTAB){
     case GRAPHS:
-    //println("asd");
-      image(Graphs.draw(),30,30,50,50);
+      Graphs.draw(5,height*0.1+5);
     break;
     case BODY:
+      image(Body3D.draw(),5,height*0.1+5);
     break;
     case SENSOR:
+      image(Sensor3D.draw(),5,height*0.1+5);
     break;
   }
    
@@ -97,6 +103,7 @@ void draw(){
 
 
 void mouseClicked(){
+  /*
   switch(currentTAB){
     case GRAPHS:
       currentTAB = _TAB.BODY;
@@ -107,11 +114,24 @@ void mouseClicked(){
     case SENSOR:
       currentTAB = _TAB.GRAPHS;
     break;
-  }
+  }*/
+
+  Graphs.mouseClicked();
 }
 
 void mouseDragged() 
 {
+  //switch(currentTAB){
+  //  case GRAPHS:
+  //    currentTAB = _TAB.BODY;
+  //  break;
+  //  case BODY:
+  //    currentTAB = _TAB.SENSOR;
+  //  break;
+  //  case SENSOR:
+  //    currentTAB = _TAB.GRAPHS;
+  //  break;
+  //}
   /*
   float dXm = mouseX-pmouseX, dYm = mouseY-pmouseY;
   switch(mouseButton){
@@ -121,8 +141,8 @@ void mouseDragged()
     case RIGHT:
       cam.rot(dXm,dYm);
     break;
-  }
-  */
+  }*/
+  
 }
 
 void mouseWheel(MouseEvent event) {

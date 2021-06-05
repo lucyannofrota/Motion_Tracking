@@ -3248,9 +3248,6 @@ lp_int_restore:
     return 0;
 }
 
-
-
-
 /**
  *  @}
  */

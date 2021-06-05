@@ -9,21 +9,6 @@ char readChar(byte[] data,offset offset){
   return ret;
 }
 
-int readShort(byte[] data,offset offset){
-  int ret;
-  if((data[offset.value] & 0x80) == 0x80){//Negative
-    ret = (data[offset.value] & 0x7f) | 
-          ((0x00) << 8) | 
-          (0xffffff80);
-  }
-  else{//Positive
-    ret = (data[offset.value] & 0xff) | 
-          ((0x00) << 8);
-  }
-  offset.value+=1;
-  return ret;
-}
-
 int readInt(byte[] data,offset offset){
   int ret;
   if((data[offset.value+1] & 0x80) == 0x80){//Negative
@@ -40,9 +25,6 @@ int readInt(byte[] data,offset offset){
 }
 
 void readPose(byte[] data,offset offset,Pose pos){
-  int a = readShort(data,offset);
-  //print("Index: ");
-  //println(a);
   pos.X = readInt(data,offset);
   pos.Y = readInt(data,offset);
   pos.Z = readInt(data,offset);
@@ -51,33 +33,13 @@ void readPose(byte[] data,offset offset,Pose pos){
   pos.Rz = readInt(data,offset);
 }
 
-int readSensor(byte[] data,offset offset,Pose pos){
-  int a = readShort(data,offset);
-  //print("Index: ");
-  //println(a);
-  //sens.ax = readInt(data,offset)/65536.f;
-  //sens.ay = readInt(data,offset)/65536.f;
-  //sens.az = readInt(data,offset)/65536.f;
-  //sens.rx = readInt(data,offset);
-  //sens.ry = readInt(data,offset);
-  //sens.rz = readInt(data,offset);
-  
-  pos.X = readInt(data,offset)/65536.f;
-  pos.Y = readInt(data,offset)/65536.f;
-  pos.Z = readInt(data,offset)/65536.f;
-  pos.Rx = readInt(data,offset);
-  pos.Ry = readInt(data,offset);
-  pos.Rz = readInt(data,offset);
-  return a;
-}
-
 byte[] COMBuff = new byte[64];
 
-
-void serialEvent (Serial myPort) {
+void serialEvent (Serial myPort) { 
   int ac = millis(); 
    delay(10);
-  final int maxbuf = buffReadUntil;
+  int charCount = 6;
+  final int maxbuf = 16;
   offset of = new offset(0);
   int len = myPort.available();
   
@@ -90,18 +52,9 @@ void serialEvent (Serial myPort) {
       //println(c);
       switch(COMBuff[0]){
         case 'P':
-          COMBuff = myPort.readBytes(6 * 2 + 1);
+          COMBuff = myPort.readBytes(charCount * 2);
           readPose(COMBuff,of,CubePose);
           CubePose.print();
-          println("Time:" + (ac-lm));
-          lm = ac;
-          break;
-        case 'S':
-          COMBuff = myPort.readBytes(6 * 2 + 1);
-          //println(COMBuff);
-          int b = readSensor(COMBuff,of,CubePose);
-          //println(b)
-          //CubePose.print();
           println("Time:" + (ac-lm));
           lm = ac;
           break;

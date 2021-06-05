@@ -218,17 +218,17 @@ void readSensorData(void){
 			}
 			if(sensors & INV_WXYZ_QUAT)
 				{
-					float qw = quat[0] / 65536.f;
-					float qx = quat[1] / 65536.f;
-					float qy = quat[2] / 65536.f;//(float) norm;
-					float qz = quat[3] / 65536.f;//(float) norm;
+					quat[0] /= 65536.f;
+					quat[1] /= 65536.f;
+					quat[2] /= 65536.f;//(float) norm;
+					quat[3] /= 65536.f;//(float) norm;
 
-					float norm = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
+					float norm = sqrt(quat[0]*quat[0] + quat[1]*quat[1] + quat[2]*quat[2] + quat[3]*quat[3]);
 
-					qw /= (float)norm;
-					qx /= (float)norm;
-					qy /= (float)norm;//(float) norm;
-					qz /= (float)norm;//(float) norm;
+					float qw = quat[0]/(float)norm;
+					float qx = quat[1]/(float)norm;
+					float qy = quat[2]/(float)norm;//(float) norm;
+					float qz = quat[3]/(float)norm;//(float) norm;
 					angle = toEuler(qw, qx, qy, qz);
 				}
 			//sendPose(angle,accel);

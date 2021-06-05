@@ -11,7 +11,7 @@ class GraphsC {
 
   int time = 0; //time in ms
 
-  public PlotGroupIMU Sensor1;
+  PlotGroupIMU Sensor1;
   PlotGroupIMU Sensor2;
   PlotGroupIMU Sensor3;
   PlotGroupIMU Sensor4;
@@ -107,40 +107,33 @@ class GraphsC {
       ax = new myGPlot(parent);
       ax.setTitleText("Acceleration X");
       ax.setPositionDim(IPos[0],IPos[1]+0*hei, wid, hei);
-      // println("PlotIMG");
-      // println(wid,hei);
+      //ax.setPositionDim(5+0*wid, 1*hei+5, wid, hei);
       ax.toggleInd();
-      ax.setINDPosf(new String[]{"g"});
 
       ay = new myGPlot(parent);
       ay.setTitleText("Acceleration Y");
       ay.setPositionDim(IPos[0]+0*wid, IPos[1]+1*hei, wid, hei);
       ay.toggleInd();
-      ax.setINDPosf(new String[]{"g"});
 
       az = new myGPlot(parent, true);
       az.setTitleText("Acceleration Z");
       az.setPositionDim(IPos[0]+0*wid, IPos[1]+2*hei, wid, hei);
       az.toggleInd();
-      ax.setINDPosf(new String[]{"g"});
 
       rx = new myGPlot(parent);
       rx.setTitleText("Gyro X");
       rx.setPositionDim(IPos[0]+1*wid+2, IPos[1]+0*hei, wid, hei);
       rx.toggleInd();
-      ax.setINDPosf(new String[]{"º"});
 
       ry = new myGPlot(parent);
       ry.setTitleText("Gyro Y");
       ry.setPositionDim(IPos[0]+1*wid+2, IPos[1]+1*hei, wid, hei);
       ry.toggleInd();
-      ax.setINDPosf(new String[]{"º"});
 
       rz = new myGPlot(parent, true);
       rz.setTitleText("Gyro Z");
       rz.setPositionDim(IPos[0]+1*wid+2, IPos[1]+2*hei, wid, hei);
       rz.toggleInd();
-      ax.setINDPosf(new String[]{"º"});
     }
 
     void addPoint(int time, IMU sens) {
@@ -170,8 +163,25 @@ class GraphsC {
       rx.Draw(false);
       ry.Draw(false);
       rz.Draw(true);
+      //drawPlot(ay);
+      //drawPlot(az);
+      //drawPlot(rx);
+      //drawPlot(ry);
+      //drawPlot(rz);
     }
 
+    //void drawPlot(GPlot plot) {
+    //  plot.beginDraw();
+    //  plot.drawBackground();
+    //  plot.drawBox();
+    //  //plot.drawXAxis();
+    //  plot.drawYAxis();
+    //  //plot.drawTopAxis();
+    //  //plot.drawRightAxis();
+    //  plot.drawTitle();
+    //  plot.getMainLayer().drawLines();
+    //  plot.endDraw();
+    //}
 
     void toggleInd() {
       ax.toggleInd();
@@ -205,8 +215,6 @@ class GraphsC {
       
       PGraphics IBuf;
 
-      String INDposf[] = {""};
-
       IND indicator;
       myGPlot(PApplet parent) {
         super(parent);
@@ -219,7 +227,8 @@ class GraphsC {
         hasInd = false;
         indicator = new IND(parent, new float[]{IndWidtht, IndHeight});
         //float dim[] = getDim();
-        // indicator.setPDims(dim[0], 0, IndWidtht, IndHeight);
+        indicator.setPDims(dim[0], 0, IndWidtht, IndHeight);
+        //println(5+dim[0], 0);
       }
 
       myGPlot(PApplet parent,boolean f) {
@@ -233,7 +242,9 @@ class GraphsC {
         //GraphWidthIND = floor((Width*0.98/2)-IndWidtht);
         hasInd = false;
         indicator = new IND(parent, new float[]{IndWidtht, IndHeight});
-        // indicator.setPDims(dim[0], 0, IndWidtht, IndHeight);
+        //float dim[] = getDim();
+        indicator.setPDims(dim[0], 0, IndWidtht, IndHeight);
+        //println(5+dim[0], 0);
       }
 
       void setPositionDim(float x, float y, float dimX, float dimY) {
@@ -241,15 +252,8 @@ class GraphsC {
         GraphHeight = dimY;
         setPos(x, y);
         setOuterDim(dimX, dimY);
-        // println(dimX, dimY);
-        if(hasInd){
-          indicator.setPDims(x+GraphWidth, y+GraphHeight,dimX,dimY);
-        }
+        indicator.setPDims(x+GraphWidth, y+GraphHeight,IndWidtht,IndHeight);
         //println(x+GraphHeight, y+GraphWidth);
-      }
-
-      void setINDPosf(String [] str){
-        INDposf = str;
       }
 
       void toggleInd() {
@@ -259,7 +263,7 @@ class GraphsC {
           setDim(dim[0]-IndWidtht, dim[1]);
           setMar(marbot, marleft, martop, marright+IndWidtht);
           //setOuterDim(GraphWidthIND, GraphHeight);
-          indicator.setPDims(dim[0], 0, IndWidtht, dim[1]);
+          indicator.setPDims(dim[0], 0, IndWidtht, IndHeight);
         } else {
           setDim(dim[0], dim[1]);
           setMar(marbot, marleft, martop, marright);
@@ -287,13 +291,6 @@ class GraphsC {
         if (hasInd) parent.rect(0, -dim[1], dim[0], dim[1], 0, bord, bord, 0);
         else parent.rect(0, -dim[1], dim[0], dim[1], 0, 0, 0, 0);
         parent.popStyle();
-      }
-
-      public void addPoint(GPoint newPoint) {
-        mainLayer.addPoint(newPoint);
-        updateLimits();
-        //new String [] = {concat(str(newPoint.getY()),INDposf)};
-        indicator.update(str(newPoint.getY())+INDposf);
       }
 
       void Draw(boolean X) {
@@ -333,7 +330,7 @@ class GraphsC {
         final int bordRad = 5;
         protected final PApplet parent;
 
-        String text = "0.0";
+        String text = "95";
 
         final color fillc = color(255, 255, 255), lienc = color(0, 255, 0);
         float lineWidth = 1;
@@ -348,6 +345,7 @@ class GraphsC {
           posY = y;
           Widtht = dimX;
           Height = dimY;
+          //println(x,y);
         }
 
         void update(String txt) {
