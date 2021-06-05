@@ -18,6 +18,7 @@ class Body3DC{
     IBuf.beginDraw();
     IBuf.background(#676767);
     IBuf.fill(#F70A0A);
+    IBuf.translate(width/2,height/2);
     IBuf.box(70);
     IBuf.lights();
     IBuf.endDraw();

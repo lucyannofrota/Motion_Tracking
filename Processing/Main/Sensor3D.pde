@@ -18,7 +18,7 @@ class Sensor3DC extends PGraphics{
     //cam.update();
     IBuf.beginDraw();
     IBuf.noStroke();
-    IBuf.background(#676767);
+    IBuf.background(#EAEAEA);
     IBuf.pushMatrix();
     //IBuf.translate(width/2, height/2, -100);
     
