@@ -31,6 +31,7 @@
 #include "mpu.h"
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
+#include "sensorData.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,9 +84,10 @@ int _write(int file, char *ptr, int len)
 	HAL_UART_Transmit(&hlpuart1, (uint8_t *) ptr, len, 10);
 	return len;
 }
-struct angles_t angle = {0,0,0};
-struct accel_t accel = {0,0,0};
-
+//extern struct angles_t angle;// = {0,0,0};
+//extern struct accel_t accel;// = {0,0,0};
+extern struct sensor_t MPU1;// = {{0,0,0},{0,0,0}};
+//uint32_t temp = 0;
 uint16_t counter = 0;
 
 /* USER CODE END PV */
@@ -146,7 +148,6 @@ int main(void)
   HAL_UART_Receive_IT(&huart4, BT_BUFFER, BUFFER_LEN);
 
 
-  if(MPU_init()) NVIC_SystemReset();
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -472,12 +473,28 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
-	if(GPIO_Pin == GPIO_PIN_6)	hal.new_gyro = 1;
+	if(GPIO_Pin == GPIO_PIN_6){
+		hal.new_gyro = 1;
+//		printf("Time: %ims\n",temp);
+//		temp=0;
+	}
 	if(GPIO_Pin == Button_Pin) counter++;
 }
 
+/*
+void calibrateMPU(void){
+	uint8_t state = 0;
+	while(true){
+		switch(state){
+			case 0:
 
-
+			break;
+			case 1:
+			break;
+		}
+	}
+}
+*/
 
 /* USER CODE END 4 */
 
@@ -496,7 +513,8 @@ void StartTransmitTask_BT(void *argument)
   /* Infinite loop */
 	for(;;)
 	{
-		sendSensor(angle, accel);
+		sendSensor(MPU1);
+
 		//printf("counter = %i\r\n", counter);
 		//printf("PITCH = %f\r\n",1.8*angle.pitch/M_PI);
 		osDelay(150);
@@ -514,7 +532,7 @@ void StartTransmitTask_BT(void *argument)
 void StartSensorTask(void *argument)
 {
   /* USER CODE BEGIN StartSensorTask */
-
+	if(MPU_init()) NVIC_SystemReset();
 
   /* Infinite loop */
   for(;;)

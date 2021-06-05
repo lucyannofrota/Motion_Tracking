@@ -14,11 +14,11 @@ extern UART_HandleTypeDef huart4;
 #define BLUETOOTH 1
 
 #if BLUETOOTH == 1
-#define transmit(x) HAL_UART_Transmit(&huart4, (uint8_t *)x, sizeof(x), 100);
-#define transmit_l(x,len) HAL_UART_Transmit(&huart4, (uint8_t *)x, len, 100);
+#define transmit(x) HAL_UART_Transmit(&huart4, (uint8_t *)x, sizeof(x), 10);
+#define transmit_l(x,len) HAL_UART_Transmit(&huart4, (uint8_t *)x, len, 10);
 #else
 #define transmit(...) 	  printf(__VA_ARGS__);
-#define transmit_l(x,len) HAL_UART_Transmit(&hlpuart1, (uint8_t *)x, len, 100);
+#define transmit_l(x,len) HAL_UART_Transmit(&hlpuart1, (uint8_t *)x, len, 10);
 #endif
 struct platform_data_s {
     signed char orientation[9];
@@ -77,21 +77,15 @@ struct hal_s {
 	struct rx_s rx;
 };
 
-struct angles_t{
-	int roll;
-	int pitch;
-	int yaw;
-};
-struct accel_t{
-	int accel_x;
-	int accel_y;
-	int accel_z;
-};
-
 #undef MPL_LOGI
 #define MPL_LOGI(...) printf(__VA_ARGS__)
 #undef MPL_LOGE
 #define MPL_LOGE(...) printf(__VA_ARGS__)
+
+
+#define FILTER_MPU_DIVIDER 1 // >> 3 => /8
+#define FILTER_MPU_NSAMPLES 2 // Cada sample demora em meida 5ms. Logo, 5*8 = 40ms de taxa de amostragem
+
 
 
 #endif /* INC_MACROS_H_ */

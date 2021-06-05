@@ -8,6 +8,7 @@
 #include "Message.h"
 #include "main.h"
 #include <math.h>
+#include "sensorData.h"
 uint8_t * pointer;
 uint8_t   msgStr[64];
 extern uint16_t counter;
@@ -55,7 +56,7 @@ uint8_t length(){
 
 void writeBytes(){
 	transmit_l(msgStr, length());
-	HAL_UART_Transmit(&hlpuart1, msgStr, length(), 100);
+//	HAL_UART_Transmit(&hlpuart1, msgStr, length(), 100);
 }
 
 uint8_t available(){
@@ -76,16 +77,16 @@ void sendPose(struct angles_t angle, struct accel_t accel){
 	writeBytes();
 }
 
-void sendSensor(struct angles_t angle, struct accel_t accel){
+void sendSensor(struct sensor_t sens){
 	reset();
 	addChar('S');
 	addShort(1);
-	addInt(accel.accel_x);
-	addInt(accel.accel_y);
-	addInt(accel.accel_z);
-	addInt(angle.roll);
-	addInt(angle.pitch);
-	addInt(angle.yaw);
+	addInt(sens.acc.accel_x);
+	addInt(sens.acc.accel_y);
+	addInt(sens.acc.accel_z);
+	addInt(sens.ang.roll);
+	addInt(sens.ang.pitch);
+	addInt(sens.ang.yaw);
 	addChar('}');
 	addChar('\n');
 	writeBytes();

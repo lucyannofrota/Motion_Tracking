@@ -12,13 +12,17 @@
 #include "mpu.h"
 #include "Message.h"
 #include "macros.h"
+#include "sensorData.h"
 #include <stdio.h>
 
 extern struct hal_s hal;
 volatile uint32_t hal_timestamp = 0;
 unsigned char *mpl_key = (unsigned char*)"eMPL 5.1";
-extern struct angles_t angle;
-extern struct accel_t accel;
+//extern struct angles_t angle;
+struct readings_t readingsMPU1 = {{0,0,0},{0,0,0},0};
+struct readings_t tempReading = {{0,0,0},{0,0,0},0};
+extern struct sensor_t MPU1;
+//extern struct readings_t readingsMPU1;
 
 int MPU_init(){
 	unsigned char accel_fsr;
@@ -206,9 +210,9 @@ void readSensorData(void){
 		}
 		if(sensors & INV_XYZ_ACCEL || sensors & INV_WXYZ_QUAT){
 			if (sensors & INV_XYZ_ACCEL) {
-				accel.accel_x = accel_short[0];//65536.f;
-				accel.accel_y = accel_short[1];//65536.f;
-				accel.accel_z = accel_short[2];//65536.f;
+				tempReading.acc.accel_x = accel_short[0];//65536.f;
+				tempReading.acc.accel_y = accel_short[1];//65536.f;
+				tempReading.acc.accel_z = accel_short[2];//65536.f;
 				/*
 				printf("accel: %7.4f %7.4f %7.4f\n",
 						1000*accel.accel_x/65536.f,
@@ -229,8 +233,11 @@ void readSensorData(void){
 					qx /= (float)norm;
 					qy /= (float)norm;//(float) norm;
 					qz /= (float)norm;//(float) norm;
-					angle = toEuler(qw, qx, qy, qz);
+					tempReading.ang = toEuler(qw, qx, qy, qz);
 				}
+//			readingsMPU1.count++;
+			filter_mpuReadings(&MPU1,&readingsMPU1,&tempReading);
+//			if(readingsMPU1.count >= FILTER_MPU_NSAMPLES) ;
 			//sendPose(angle,accel);
 		}
 	}
