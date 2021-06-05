@@ -23,5 +23,15 @@ Em que:
 	- Caracter inicio: '{' 
 	- S = "sensor"
 	- X: Número do sensor
-	- ...: payload
+	- ...: payload:
+		+ accel_x,
+		+ accel_y
+		+ accel_z
+		+ roll
+		+ pitch
+		+ yaw
 	- Caracteres fim: '}\n'
+
+===============================================================
+roll,pitch,yaw: graus
+accel: Gs
