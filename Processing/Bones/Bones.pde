@@ -20,7 +20,7 @@ myGraphWindow PG = new myGraphWindow();
 
 void settings(){
   size (800/800, 800/800, P3D);
-  myPort = new Serial(this, "COM15", 38400);
+  myPort = new Serial(this, "COM5", 38400);
   delay(1000);
   myPort.buffer(buffReadUntil);
 }

@@ -83,9 +83,9 @@ void sendSensor(struct angles_t angle, struct accel_t accel){
 	addInt(accel.accel_x);
 	addInt(accel.accel_y);
 	addInt(accel.accel_z);
-	addInt(round(1.8*angle.roll/M_PI));
-	addInt(round(1.8*angle.pitch/M_PI));
-	addInt(round(1.8*angle.yaw/M_PI));
+	addInt(angle.roll);
+	addInt(angle.pitch);
+	addInt(angle.yaw);
 	addChar('}');
 	addChar('\n');
 	writeBytes();

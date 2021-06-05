@@ -20,7 +20,7 @@ _TAB currentTAB = _TAB.GRAPHS;
 void settings(){
   //fullScreen();
   size(1920,1080-45,P3D);
-  myPort = new Serial(this, "COM9", 38400);
+  myPort = new Serial(this, "COM5", 38400);
   delay(1000);
   myPort.buffer(buffReadUntil);
 }
