@@ -17,7 +17,7 @@ public enum _TAB {
 
 //body bd1 = new body(170, ); 
 
-_TAB currentTAB = _TAB.GRAPHS;
+_TAB currentTAB = _TAB.BODY;
 
 PGraphics BackGround;
 
@@ -63,7 +63,7 @@ void setup() {
   BackGround.endDraw();
 
   delay(7000);
-  myPort = new Serial(this, "COM4", 115200);
+  myPort = new Serial(this, "COM5", 38400);
   myPort.buffer(buffReadUntil);
 }
 

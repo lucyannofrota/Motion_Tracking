@@ -16,6 +16,7 @@ class Body3DC {
     IBuf = createGraphics(DrawSize[0], DrawSize[1], P3D);
     b = new body(170, IBuf);
     cam = new camera_Obj(IBuf,float(0),3*float(170)/4,float(100));
+    cam.update();
   }
 
   PGraphics draw() {
@@ -138,7 +139,7 @@ class body {
 
   body(float _height, PGraphics p) {
     b_height = _height;
-    b_head_r = 14.8/2;
+    b_head_r = 25/2;
     b_neck = 7.5;
     b_shoulders_hip_r = 28/2;
     b_chest = 45+2*b_shoulders_hip_r;
@@ -148,7 +149,7 @@ class body {
   void draw_head(float pos) {
     ib.pushMatrix();
     ib.translate(0, pos, 0);
-    ib.fill(#C84646);
+    ib.fill(#FFD27E);
     ib.sphere(b_head_r);
     ib.popMatrix();
   }
@@ -156,7 +157,7 @@ class body {
   void draw_neck(float pos) {
     ib.pushMatrix();
     ib.translate(0, pos, 0);
-    ib.fill(#C84646);
+    ib.fill(#FFD27E);
     ib.rotateX(PI/2);
     drawCylinder(ib,36, 7/2, 7.5/2, b_neck);
     ib.popMatrix();
@@ -165,39 +166,53 @@ class body {
   void draw_shoulders(float pos) {
     ib.pushMatrix();
     ib.translate(0, pos, 0);
-    ib.fill(#C84646);
-    ib.sphere(b_shoulders_hip_r);
+    ib.fill(#ff449f);
+    ib.sphere(b_shoulders_hip_r-0.1);
     ib.popMatrix();
   }
 
   void draw_left_arm(float x, float y, float z, int showAxis) {
     ib.pushMatrix();
-    ib.fill(#18B9C0);
+    ib.fill(#005f99);
     ib.rotateY(PI);
     ib.translate(-x, y, -z);
-    ib.sphere(b_shoulders_hip_r/2);
+    float radius = b_shoulders_hip_r/2;
+    ib.sphere(radius);
     if (showAxis == 1) {
       showAxis();
     }
+    ib.pushMatrix();
+    ib.rotateY(PI/2);
+    ib.fill(#FFD27E);
+    ib.translate(0,0,20+radius/2);
+    drawCylinder(ib,36,3,3,40);
+    ib.popMatrix();
     ib.popMatrix();
   }
 
   void draw_right_arm(float x, float y, float z, int showAxis) {
     ib.pushMatrix();
-    ib.fill(#18B9C0);
+    ib.fill(#005f99);
     //rotateZ(PI/2);
     ib.translate(x, y, z);
-    ib.sphere(b_shoulders_hip_r/2);
+    float radius = b_shoulders_hip_r/2;
+    ib.sphere(radius);
     if (showAxis == 1) {
       showAxis();
     }
+    ib.pushMatrix();
+    ib.rotateY(PI/2);
+    ib.translate(0,0,20+radius/2);
+    ib.fill(#FFD27E);
+    drawCylinder(ib,36,3,3,40);
+    ib.popMatrix();
     ib.popMatrix();
   }
 
   void draw_chest(float pos, int showAxis) {
     ib.pushMatrix();
     ib.translate(0, pos, 0);
-    ib.fill(#C84646);
+    ib.fill(#ff449f);
     ib.rotateX(PI/2);
     drawCylinder(ib,36, b_shoulders_hip_r, b_shoulders_hip_r, b_chest);
     if (showAxis == 1) {
@@ -208,9 +223,9 @@ class body {
 
   void draw_hip(float pos) {
     ib.pushMatrix();
-    ib.translate(0, pos, 0);
-    ib.fill(#C84646);
-    ib.sphere(b_shoulders_hip_r);
+    ib.translate(0, pos/32, 0);
+    ib.fill(#005f99);
+    ib.sphere(90);
     ib.popMatrix();
   }
 
@@ -220,8 +235,8 @@ class body {
     draw_head(b_height-b_head_r);
     draw_neck(b_height-2*b_head_r-b_neck/2+b_neck/4);
     draw_shoulders(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r);
-    draw_left_arm(-b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r, 0, 1);
-    draw_right_arm(b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r, 0, 1);
+    draw_left_arm(-b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 1);
+    draw_right_arm(b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 1);
     draw_chest(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-b_chest/2, 1);
     draw_hip(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-2*b_chest/2);
   }
