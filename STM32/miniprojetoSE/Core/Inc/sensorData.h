@@ -22,16 +22,16 @@ struct accel_t{
 	int accel_z;
 };
 
-struct readings_t{
+struct sensor_t{
 	struct angles_t ang;
 	struct accel_t acc;
 	int count;
 };
 
-struct sensor_t{
+/*struct sensor_t{
 	struct angles_t ang;
 	struct accel_t acc;
-};
+};*/
 
 //Delete
 //struct angles_t angle = {0,0,0};
@@ -46,7 +46,9 @@ void AngpAssign(struct angles_t *prim, struct angles_t *sec);
 
 void AngsRight(struct angles_t *prim, int N);
 
-void filter_mpuReadings(struct sensor_t *sens,struct readings_t *readings ,struct readings_t *temp);
+void filter_mpuReadings(struct sensor_t *sens,struct sensor_t *readings ,struct sensor_t *temp);
+
+void removeGravity(struct sensor_t *sens);
 
 
 #endif /* INC_SENSORDATA_H_ */

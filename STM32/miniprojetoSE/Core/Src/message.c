@@ -78,6 +78,7 @@ void sendPose(struct angles_t angle, struct accel_t accel){
 }
 
 void sendSensor(struct sensor_t sens){
+	if(sens.count != 0) return;
 	reset();
 	addChar('S');
 	addShort(1);

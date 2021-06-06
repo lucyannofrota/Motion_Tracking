@@ -19,8 +19,8 @@ extern struct hal_s hal;
 volatile uint32_t hal_timestamp = 0;
 unsigned char *mpl_key = (unsigned char*)"eMPL 5.1";
 //extern struct angles_t angle;
-struct readings_t readingsMPU1 = {{0,0,0},{0,0,0},0};
-struct readings_t tempReading = {{0,0,0},{0,0,0},0};
+struct sensor_t readingsMPU1 = {{0,0,0},{0,0,0},0};
+struct sensor_t tempReading = {{0,0,0},{0,0,0},0};
 extern struct sensor_t MPU1;
 //extern struct readings_t readingsMPU1;
 

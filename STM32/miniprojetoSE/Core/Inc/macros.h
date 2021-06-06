@@ -84,8 +84,9 @@ struct hal_s {
 
 
 #define FILTER_MPU_DIVIDER 1 // >> 3 => /8
-#define FILTER_MPU_NSAMPLES 2 // Cada sample demora em meida 5ms. Logo, 5*8 = 40ms de taxa de amostragem
+#define FILTER_MPU_NSAMPLES 2 // Cada amostra demora em meida 5ms. Logo, 5*8 = 40ms de taxa de amostragem
 
 
+#define REMOVE_GRAVITY 1
 
 #endif /* INC_MACROS_H_ */
