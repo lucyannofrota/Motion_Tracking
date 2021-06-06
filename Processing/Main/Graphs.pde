@@ -34,7 +34,7 @@ class GraphsC {
     // Criando os plots
 
 
-    Sensor1 = new PlotGroupIMU(parent,float(Dpos),new float[]{DrawSize[0]-4,DrawSize[1]-4},IBuf);
+    Sensor1 = new PlotGroupIMU(parent,float(Dpos),new float[]{DrawSize[0]-4,DrawSize[1]-4});
     //Sensor2 = new PlotGroupIMU(parent,float(Dpos),new float[]{DrawSize[0]-4,DrawSize[1]-4},IBuf);
     //Sensor3 = new PlotGroupIMU(parent,float(Dpos),new float[]{DrawSize[0]-4,DrawSize[1]-4},IBuf);
     //Sensor4 = new PlotGroupIMU(parent,float(Dpos),new float[]{DrawSize[0]-4,DrawSize[1]-4},IBuf);
@@ -65,16 +65,16 @@ class GraphsC {
     }
     switch(nS) {
     case 1:
-      Sensor1.addPoint(elt, sens);
+      Sensor1.addPoint(elt/1000.0, sens);
       break;
     case 2:
-      Sensor2.addPoint(elt, sens);
+      Sensor2.addPoint(elt/1000.0, sens);
       break;
     case 3:
-      Sensor3.addPoint(elt, sens);
+      Sensor3.addPoint(elt/1000.0, sens);
       break;
     case 4:
-      Sensor4.addPoint(elt, sens);
+      Sensor4.addPoint(elt/1000.0, sens);
       break;
     }
   }
@@ -94,8 +94,9 @@ class GraphsC {
     int Npoints = 0;
     final int NdataPlot = 100;
     
+    boolean Cflag = false ,Dflag = false;
 
-    PlotGroupIMU(PApplet parent,float [] _posis,float [] _dimens, PGraphics _IBuf) {
+    PlotGroupIMU(PApplet parent,float [] _posis,float [] _dimens) {
       //final float Width = _dimens[0], Height = _dimens[1];
       //final float Width = 1920, Height = 1080;
       
@@ -143,7 +144,9 @@ class GraphsC {
       ax.setINDPosf(new String[]{"º"});
     }
 
-    void addPoint(int time, IMU sens) {
+    void addPoint(float time, IMU sens) {
+      while(Dflag) delay(1);
+      Cflag = true;
       Npoints++;
       ax.addPoint(new GPoint(time, sens.ax));
       ay.addPoint(new GPoint(time, sens.ay));
@@ -160,16 +163,20 @@ class GraphsC {
         ry.removePoint(0);
         rz.removePoint(0);
       }
+      Cflag = false;
     }
 
 
     void draw() {
+      while(Cflag) delay(1);
+      Dflag = true;
       ax.Draw(false);
       ay.Draw(false);
       az.Draw(true);
       rx.Draw(false);
       ry.Draw(false);
       rz.Draw(true);
+      Dflag = false;
     }
 
 
@@ -305,15 +312,16 @@ class GraphsC {
         //plot.drawTopAxis();
         //plot.drawRightAxis();
         drawTitle();
-        try {
-          drawLines();
-        }
-        catch(IndexOutOfBoundsException e) {
-          e.printStackTrace();
-        }
-        catch(NullPointerException e) {
-          e.printStackTrace();
-        }
+        drawLines();
+        //try {
+        //  drawLines();
+        //}
+        //catch(IndexOutOfBoundsException e) {
+        //  e.printStackTrace();
+        //}
+        //catch(NullPointerException e) {
+        //  e.printStackTrace();
+        //}
         if (hasInd) indicator.draw();
         endDraw();
       }

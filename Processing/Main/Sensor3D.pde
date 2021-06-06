@@ -21,11 +21,10 @@ class Sensor3DC extends PGraphics{
     IBuf.background(#EAEAEA);
     IBuf.pushMatrix();
     //IBuf.translate(width/2, height/2, -100);
-    
+    IBuf.lights();
     pl.display();
     //IBuf.fill(#F70A0A);
     //IBuf.box(70);
-    IBuf.lights();
     IBuf.popMatrix();
     IBuf.endDraw();
     return IBuf;
