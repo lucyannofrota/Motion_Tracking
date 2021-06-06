@@ -10,7 +10,7 @@ Serial myPort;
 //String data="";
 
 public enum _TAB {
-  GRAPHS, 
+    GRAPHS, 
     BODY, 
     SENSOR
 }
@@ -63,7 +63,7 @@ void setup() {
   BackGround.endDraw();
 
   delay(7000);
-  myPort = new Serial(this, "COM5", 38400);
+  myPort = new Serial(this, "COM4", 115200);
   myPort.buffer(buffReadUntil);
 }
 
@@ -110,62 +110,57 @@ void draw() {
 
 
 void mouseClicked() {
-  /*
-  switch(currentTAB){
-   case GRAPHS:
-   currentTAB = _TAB.BODY;
-   break;
-   case BODY:
-   currentTAB = _TAB.SENSOR;
-   break;
-   case SENSOR:
-   currentTAB = _TAB.GRAPHS;
-   break;
-   }*/
-
-  Graphs.mouseClicked();
+  if((mouseX > DrawWindowPos[0] && mouseX < ((DrawWindowPos[0])+DrawWindowDim[0])) &&
+     (mouseY > DrawWindowPos[1] && mouseY < ((DrawWindowPos[1])+DrawWindowDim[1]))
+    ){
+    switch(currentTAB){
+      case GRAPHS:
+        Graphs.mouseClicked();
+      break;
+      case BODY:
+        Body3D.mouseClicked();
+      break;
+      case SENSOR:
+        Sensor3D.mouseClicked();
+      break;
+    }
+  }
 }
 
-void mouseDragged() 
-{
-  //switch(currentTAB){
-  //  case GRAPHS:
-  //    currentTAB = _TAB.BODY;
-  //  break;
-  //  case BODY:
-  //    currentTAB = _TAB.SENSOR;
-  //  break;
-  //  case SENSOR:
-  //    currentTAB = _TAB.GRAPHS;
-  //  break;
-  //}
-  /*
-  float dXm = mouseX-pmouseX, dYm = mouseY-pmouseY;
-   switch(mouseButton){
-   case LEFT:
-   cam.transl(dXm,dYm);
-   break;
-   case RIGHT:
-   cam.rot(dXm,dYm);
-   break;
-   }*/
+void mouseDragged() {
+  if((mouseX > DrawWindowPos[0] && mouseX < ((DrawWindowPos[0])+DrawWindowDim[0])) &&
+     (mouseY > DrawWindowPos[1] && mouseY < ((DrawWindowPos[1])+DrawWindowDim[1]))
+    ){
+    switch(currentTAB){
+      case GRAPHS:
+        Graphs.mouseDragged();
+      break;
+      case BODY:
+        Body3D.mouseDragged();
+      break;
+      case SENSOR:
+        Sensor3D.mouseDragged();
+      break;
+    }
+  }
 }
 
 void mouseWheel(MouseEvent event) {
-
-
-
-  /*
-  cam.fov+=float(event.getCount())/10;
-   //println(cam.fov);
-   if(cam.fov < 1){
-   cam.fov = 1;
-   }
-   if(cam.fov > 2){
-   cam.fov = 2;
-   }
-   cam.update();
-   */
+  if((mouseX > DrawWindowPos[0] && mouseX < ((DrawWindowPos[0])+DrawWindowDim[0])) &&
+     (mouseY > DrawWindowPos[1] && mouseY < ((DrawWindowPos[1])+DrawWindowDim[1]))
+    ){
+    switch(currentTAB){
+      case GRAPHS:
+        Graphs.mouseWheel(event);
+      break;
+      case BODY:
+        Body3D.mouseWheel(event);
+      break;
+      case SENSOR:
+        Sensor3D.mouseWheel(event);
+      break;
+    }
+  }
 }
 
 

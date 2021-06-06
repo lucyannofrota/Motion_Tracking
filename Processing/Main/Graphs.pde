@@ -16,7 +16,7 @@ class GraphsC {
   PlotGroupIMU Sensor3;
   PlotGroupIMU Sensor4;
 
-  boolean flag;
+  //boolean flag;
   
   final protected PApplet parent;
 
@@ -26,7 +26,7 @@ class GraphsC {
     DrawSize = Dsize;
     IBuf = createGraphics(DrawSize[0], DrawSize[1], P2D);
 
-    flag = false;
+    //flag = false;
 
 
     time = 0;
@@ -51,8 +51,17 @@ class GraphsC {
 
 
   void mouseClicked() {
-    flag = !flag;
+    //flag = !flag;
     Sensor1.toggleInd();
+  }
+  
+  
+  void mouseWheel(MouseEvent e){
+    
+  } 
+
+  void mouseDragged(){
+    
   }
 
   public void newData(IMU sens, int nS) {
@@ -81,6 +90,7 @@ class GraphsC {
 
 
 
+  
 
 
 
