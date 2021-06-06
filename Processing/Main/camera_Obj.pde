@@ -3,7 +3,7 @@ camera_Obj cam;
 class camera_Obj{
   float x; float y; float z;
   float pitch; float yaw;
-  float fov;
+  float fov; 
   
   camera_Obj(float x_,float y_, float z_){
     this.x = x_;

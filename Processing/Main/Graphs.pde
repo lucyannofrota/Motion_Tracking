@@ -86,7 +86,7 @@ class GraphsC {
 
 
 
-
+  // Conjunto graficos
   class PlotGroupIMU {
     myGPlot ax, ay, az;
     myGPlot rx, ry, rz;
@@ -111,36 +111,42 @@ class GraphsC {
       // println("PlotIMG");
       // println(wid,hei);
       ax.toggleInd();
+      ax.setYLim(-0.5,0.5);
       ax.setINDPosf(new String[]{"g"});
 
       ay = new myGPlot(parent);
       ay.setTitleText("Acceleration Y");
       ay.setPositionDim(IPos[0]+0*wid, IPos[1]+1*hei, wid, hei);
       ay.toggleInd();
+      ay.setYLim(-0.5,0.5);
       ax.setINDPosf(new String[]{"g"});
 
       az = new myGPlot(parent, true);
       az.setTitleText("Acceleration Z");
       az.setPositionDim(IPos[0]+0*wid, IPos[1]+2*hei, wid, hei);
       az.toggleInd();
+      az.setYLim(-0.5,0.5);
       ax.setINDPosf(new String[]{"g"});
 
       rx = new myGPlot(parent);
       rx.setTitleText("Gyro X");
       rx.setPositionDim(IPos[0]+1*wid+2, IPos[1]+0*hei, wid, hei);
       rx.toggleInd();
+      rx.setYLim(-180,180);
       ax.setINDPosf(new String[]{"º"});
 
       ry = new myGPlot(parent);
       ry.setTitleText("Gyro Y");
       ry.setPositionDim(IPos[0]+1*wid+2, IPos[1]+1*hei, wid, hei);
       ry.toggleInd();
+      ry.setYLim(-90,90);
       ax.setINDPosf(new String[]{"º"});
 
       rz = new myGPlot(parent, true);
       rz.setTitleText("Gyro Z");
       rz.setPositionDim(IPos[0]+1*wid+2, IPos[1]+2*hei, wid, hei);
       rz.toggleInd();
+      rz.setYLim(-180,180);
       ax.setINDPosf(new String[]{"º"});
     }
 
@@ -196,7 +202,7 @@ class GraphsC {
 
 
 
-
+    // Graficos per se
     class myGPlot extends GPlot {
       final float Height = 1080, Width = 1920;
       float GraphHeight = floor(Height*0.25);
@@ -298,7 +304,7 @@ class GraphsC {
 
       public void addPoint(GPoint newPoint) {
         mainLayer.addPoint(newPoint);
-        updateLimits();
+        //updateLimits();
         //new String [] = {concat(str(newPoint.getY()),INDposf)};
         indicator.update(str(newPoint.getY()));
       }
@@ -332,7 +338,7 @@ class GraphsC {
 
 
 
-
+      // Caixinha verde
       class IND {
         float Height = 80;
         float Widtht = 80;
