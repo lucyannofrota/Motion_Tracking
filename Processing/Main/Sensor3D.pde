@@ -16,6 +16,14 @@ class Sensor3DC extends PGraphics {
 
   PGraphics draw() {
     IBuf.beginDraw();
+    if(InitializationFlag == false){
+      IBuf.endDraw();
+      return IBuf;
+    }
+    //if(InitFlag == false){
+    //  IBuf.endDraw();
+    //  return IBuf;
+    //}
     IBuf.noStroke();
     drawBackground();
     //IBuf.translate(width/2, height/2);

@@ -122,11 +122,13 @@ class PlotGroupIMU {
   color bgColor = color(#25251d);
   color boxBgColor = color(#3a3b3c);
   color boxLineColor = color(#204a42);
+  
+  IMU tempBuf;
 
   PlotGroupIMU(PApplet parent, float [] _posis, float [] _dimens) {
     //final float Width = _dimens[0], Height = _dimens[1];
     //final float Width = 1920, Height = 1080;
-
+    tempBuf = new IMU();
     final float IPos[] = {_posis[0]+2, _posis[1]+3};
 
     final float wid = (_dimens[0]-2)/2;
@@ -200,11 +202,15 @@ class PlotGroupIMU {
       ry.removePoint(0);
       rz.removePoint(0);
     }
+    tempBuf.def(sens.ax,sens.ay,sens.az,sens.rx,sens.ry,sens.rz);
     Cflag = false;
   }
 
   float[] getRPY() {
-    return new float[]{rx.getPointsRef().getY(rx.getPointsRef().getNPoints() - 1), ry.getPointsRef().getY(rx.getPointsRef().getNPoints() - 1), rz.getPointsRef().getY(rx.getPointsRef().getNPoints() - 1)};
+    //if(InitializationFlag == false) return new float[]{0, 0, 0};
+    //while (Cflag) delay(1);
+    float [] ret = new float[]{tempBuf.rx, tempBuf.ry, tempBuf.rz};
+    return ret;
   }
 
 

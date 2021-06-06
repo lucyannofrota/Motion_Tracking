@@ -9,6 +9,8 @@ class Body3DC {
   PGraphics IBuf;
   body b;
   
+  //boolean InitFlag = false;
+  
   camera_Obj cam;
 
   Body3DC(int [] Dsize) {
@@ -22,8 +24,16 @@ class Body3DC {
   PGraphics draw() {
     
     final float len = 10000;
-    cam.update();
     IBuf.beginDraw();
+    if(InitializationFlag == false){
+      IBuf.endDraw();
+      return IBuf;
+    }
+    //    if(InitFlag == false){
+    //  IBuf.endDraw();
+    //  return IBuf;
+    //}
+    cam.update();
     IBuf.pushMatrix();
     //IBuf.rotateY(radians(180));
     IBuf.lights();
@@ -127,6 +137,8 @@ class body {
   float b_neck;
   float b_shoulders_hip_r;
   float b_chest;
+  
+  joint R_Arm;
 
   protected final PGraphics ib;
   void showAxis() {
@@ -147,6 +159,7 @@ class body {
     b_shoulders_hip_r = 28/2;
     b_chest = 45+2*b_shoulders_hip_r;
     ib = p;
+    R_Arm = new joint(ib, Graphs.getSens(1));
   }
 
   void draw_head(float pos) {
@@ -174,14 +187,15 @@ class body {
     ib.popMatrix();
   }
 
-  void draw_left_arm(float x, float y, float z, int showAxis) {
+  void draw_right_arm(float x, float y, float z, int showAxis) {
     ib.pushMatrix();
     ib.fill(#005f99);
     ib.rotateY(PI);
     ib.translate(-x, y, -z);
     float radius = b_shoulders_hip_r/2;
+    R_Arm.pushMatrix();
     ib.sphere(radius);
-    if (showAxis == 1) {
+    if(showAxis == 1) {
       showAxis();
     }
     ib.pushMatrix();
@@ -189,16 +203,18 @@ class body {
     ib.fill(#FFD27E);
     ib.translate(0,0,20+radius/2);
     drawCylinder(ib,36,3,3,40);
+    R_Arm.popMatrix();
     ib.popMatrix();
     ib.popMatrix();
   }
 
-  void draw_right_arm(float x, float y, float z, int showAxis) {
+  void draw_left_arm(float x, float y, float z, int showAxis) {
     ib.pushMatrix();
     ib.fill(#005f99);
     //rotateZ(PI/2);
     ib.translate(x, y, z);
     float radius = b_shoulders_hip_r/2;
+    //R_Arm.pushMatrix();
     ib.sphere(radius);
     if (showAxis == 1) {
       showAxis();
@@ -208,6 +224,7 @@ class body {
     ib.translate(0,0,20+radius/2);
     ib.fill(#FFD27E);
     drawCylinder(ib,36,3,3,40);
+    //R_Arm.popMatrix();
     ib.popMatrix();
     ib.popMatrix();
   }
@@ -238,8 +255,8 @@ class body {
     draw_head(b_height-b_head_r);
     draw_neck(b_height-2*b_head_r-b_neck/2+b_neck/4);
     draw_shoulders(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r);
-    draw_left_arm(-b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 1);
-    draw_right_arm(b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 1);
+    draw_left_arm(b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 1);
+    draw_right_arm(-b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 1);
     draw_chest(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-b_chest/2, 1);
     draw_hip(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-2*b_chest/2);
   }
@@ -249,29 +266,32 @@ class body {
     PGraphics ibuf;
     float []transform = {-1,0,0,0,
                           0,1,0,0,
-                          0,0,-1,0};
+                          0,0,-1,0,
+                          0,0,0,1};
     float [] rpy;
     joint(PGraphics buf, PlotGroupIMU s){
       ibuf = buf;
+      sens = s;
     }
     
     joint(PGraphics buf, PlotGroupIMU s, float [] transf){
       transform = transf;
       ibuf = buf;
+      sens = s;
     }
     
     void pushMatrix(){
       ibuf.pushMatrix();
-      applyMatrix(
+      ibuf.applyMatrix(
         transform[0],transform[1],transform[2],transform[3],
         transform[4],transform[5],transform[6],transform[7],
         transform[8],transform[9],transform[10],transform[11],
         transform[12],transform[13],transform[14],transform[15]
         );
       rpy = sens.getRPY();
-      rotateX(rpy[0]);
-      rotateY(rpy[1]);
-      rotateZ(rpy[2]);
+      ibuf.rotateX(radians(rpy[0]));
+      ibuf.rotateY(radians(rpy[1]));
+      ibuf.rotateZ(radians(rpy[2]));
     }
     
     void popMatrix(){

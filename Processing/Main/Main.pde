@@ -21,6 +21,8 @@ _TAB currentTAB = _TAB.BODY;
 
 PGraphics BackGround;
 
+boolean InitializationFlag = false;
+
 void settings() {
   //fullScreen();
   size(1920, 1080-45, P2D);
@@ -63,12 +65,14 @@ void setup() {
   BackGround.endDraw();
 
   delay(7000);
-  myPort = new Serial(this, "COM5", 38400);
+  myPort = new Serial(this, "COM4", 115200);
   myPort.buffer(buffReadUntil);
+  InitializationFlag = true;
 }
 
-
+//boolean D_Flag = false;
 void draw() {
+  if(InitializationFlag == false) return;
   //background(#41646A);
 
   image(BackGround, 0, 0);
