@@ -63,7 +63,7 @@ void setup() {
   BackGround.endDraw();
 
   delay(7000);
-  myPort = new Serial(this, "COM15", 38400);
+  myPort = new Serial(this, "COM5", 38400);
   myPort.buffer(buffReadUntil);
 }
 

@@ -132,21 +132,21 @@ class GraphsC {
       rx.setTitleText("Gyro X");
       rx.setPositionDim(IPos[0]+1*wid+2, IPos[1]+0*hei, wid, hei);
       rx.toggleInd();
-      rx.setYLim(-180,180);
+      rx.setYLim(-200,200);
       ax.setINDPosf(new String[]{"º"});
 
       ry = new myGPlot(parent);
       ry.setTitleText("Gyro Y");
       ry.setPositionDim(IPos[0]+1*wid+2, IPos[1]+1*hei, wid, hei);
       ry.toggleInd();
-      ry.setYLim(-90,90);
+      ry.setYLim(-100,100);
       ax.setINDPosf(new String[]{"º"});
 
       rz = new myGPlot(parent, true);
       rz.setTitleText("Gyro Z");
       rz.setPositionDim(IPos[0]+1*wid+2, IPos[1]+2*hei, wid, hei);
       rz.toggleInd();
-      rz.setYLim(-180,180);
+      rz.setYLim(-200,200);
       ax.setINDPosf(new String[]{"º"});
     }
 
