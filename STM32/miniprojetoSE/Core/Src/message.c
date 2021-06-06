@@ -56,7 +56,7 @@ uint8_t length(){
 
 void writeBytes(){
 	transmit_l(msgStr, length());
-//	HAL_UART_Transmit(&hlpuart1, msgStr, length(), 100);
+	HAL_UART_Transmit(&hlpuart1, msgStr, length(), 10);
 }
 
 uint8_t available(){
@@ -78,7 +78,10 @@ void sendPose(struct angles_t angle, struct accel_t accel){
 }
 
 void sendSensor(struct sensor_t sens){
+//	printf("Ping\n");
 	if(sens.count != 0) return;
+//	printf("A(%i,%i,%i)\nG(%i,%i,%i)\n",1,2,3,4,5,6);
+//	printf("A(%i,%i,%i)\nG(%i,%i,%i)\n",sens.acc.accel_x,sens.acc.accel_y,sens.acc.accel_z,sens.ang.roll*1000,sens.ang.pitch*1000,sens.ang.yaw*1000);
 	reset();
 	addChar('S');
 	addShort(1);
@@ -91,6 +94,7 @@ void sendSensor(struct sensor_t sens){
 	addChar('}');
 	addChar('\n');
 	writeBytes();
+//	printf("PingEnd\n");
 }
 
 

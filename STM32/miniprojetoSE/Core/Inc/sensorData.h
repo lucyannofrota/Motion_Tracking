@@ -48,7 +48,8 @@ void AngsRight(struct angles_t *prim, int N);
 
 void filter_mpuReadings(struct sensor_t *sens,struct sensor_t *readings ,struct sensor_t *temp);
 
-void removeGravity(struct sensor_t *sens);
+//void removeGravity(struct sensor_t *sens);
 
+void removeGravity(struct accel_t *ac,short *accel,float *q);
 
 #endif /* INC_SENSORDATA_H_ */

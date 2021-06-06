@@ -82,6 +82,8 @@ struct hal_s {
 #undef MPL_LOGE
 #define MPL_LOGE(...) printf(__VA_ARGS__)
 
+#define USE_CAL_HW_REGISTERS 1
+
 
 #define FILTER_MPU_DIVIDER 1 // >> 3 => /8
 #define FILTER_MPU_NSAMPLES 2 // Cada amostra demora em meida 5ms. Logo, 5*8 = 40ms de taxa de amostragem

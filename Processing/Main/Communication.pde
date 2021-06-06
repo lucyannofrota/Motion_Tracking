@@ -55,9 +55,9 @@ int readSensor(byte[] data,offset offset,IMU sens){
   int a = readShort(data,offset);
   //print("Index: ");
   //println(a);
-  sens.ax = readInt(data,offset)/65536.f;
-  sens.ay = readInt(data,offset)/65536.f;
-  sens.az = readInt(data,offset)/65536.f;
+  sens.ax = readInt(data,offset)/1000.0;
+  sens.ay = readInt(data,offset)/1000.0;
+  sens.az = readInt(data,offset)/1000.0;
   sens.rx = readInt(data,offset);
   sens.ry = readInt(data,offset);
   sens.rz = readInt(data,offset);

@@ -100,7 +100,7 @@ struct angles_t toEuler(float qw,float qx, float qy, float qz){
 
 	float p1 = 2 * (qw * qy - qz * qx);
 	if (fabs(p1) >= 1 - epsilon)
-		angle.pitch = 100*copysignf(M_PI / 2, p1); // use 90 degrees if out of range
+		angle.pitch = 180*copysignf(M_PI / 2, p1); // use 90 degrees if out of range
 	else
 		angle.pitch = 180*asin(p1)/M_PI;
 
@@ -197,6 +197,7 @@ void readSensorData(void){
 		short gyro[3], accel_short[3], sensors;
 		unsigned char more;
 		long quat[4];
+		float qw,qx,qy,qz;
 		dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more);
 
 		if (!more)
@@ -209,23 +210,12 @@ void readSensorData(void){
 					gyro[2]/65536.f);*/
 		}
 		if(sensors & INV_XYZ_ACCEL || sensors & INV_WXYZ_QUAT){
-			if (sensors & INV_XYZ_ACCEL) {
-				tempReading.acc.accel_x = accel_short[0];//65536.f;
-				tempReading.acc.accel_y = accel_short[1];//65536.f;
-				tempReading.acc.accel_z = accel_short[2];//65536.f;
-				/*
-				printf("accel: %7.4f %7.4f %7.4f\n",
-						1000*accel.accel_x/65536.f,
-						1000*accel.accel_y/65536.f,
-						1000*accel.accel_z/65536.f);*/
-
-			}
 			if(sensors & INV_WXYZ_QUAT)
 				{
-					float qw = quat[0] / 65536.f;
-					float qx = quat[1] / 65536.f;
-					float qy = quat[2] / 65536.f;//(float) norm;
-					float qz = quat[3] / 65536.f;//(float) norm;
+					qw = quat[0] / 65536.f;
+					qx = quat[1] / 65536.f;
+					qy = quat[2] / 65536.f;//(float) norm;
+					qz = quat[3] / 65536.f;//(float) norm;
 
 					float norm = sqrt(qw*qw + qx*qx + qy*qy + qz*qz);
 
@@ -235,6 +225,26 @@ void readSensorData(void){
 					qz /= (float)norm;//(float) norm;
 					tempReading.ang = toEuler(qw, qx, qy, qz);
 				}
+			if (sensors & INV_XYZ_ACCEL) {
+#if REMOVE_GRAVITY == 0
+				tempReading.acc.accel_x = accel_short[0];//65536.f;
+				tempReading.acc.accel_y = accel_short[1];//65536.f;
+				tempReading.acc.accel_z = accel_short[2];//65536.f;
+
+
+#else
+				float qt[4] = {qw,qx,qy,qz};
+				removeGravity(&tempReading.acc,accel_short,qt);
+//				tempReading.acc.accel_x
+
+#endif
+				/*
+				printf("accel: %7.4f %7.4f %7.4f\n",
+						1000*accel.accel_x/65536.f,
+						1000*accel.accel_y/65536.f,
+						1000*accel.accel_z/65536.f);*/
+
+			}
 //			readingsMPU1.count++;
 			filter_mpuReadings(&MPU1,&readingsMPU1,&tempReading);
 //			if(readingsMPU1.count >= FILTER_MPU_NSAMPLES) ;

@@ -60,14 +60,14 @@ DMA_HandleTypeDef hdma_lpuart1_rx;
 osThreadId_t TransmitTask_BTHandle;
 const osThreadAttr_t TransmitTask_BT_attributes = {
   .name = "TransmitTask_BT",
-  .stack_size = 128 * 4,
+  .stack_size = 256 * 4,
   .priority = (osPriority_t) osPriorityLow1,
 };
 /* Definitions for SensorTask */
 osThreadId_t SensorTaskHandle;
 const osThreadAttr_t SensorTask_attributes = {
   .name = "SensorTask",
-  .stack_size = 256 * 4,
+  .stack_size = 512 * 4,
   .priority = (osPriority_t) osPriorityNormal1,
 };
 /* USER CODE BEGIN PV */
@@ -514,6 +514,7 @@ void StartTransmitTask_BT(void *argument)
 	for(;;)
 	{
 		sendSensor(MPU1);
+//		printf("A(%i,%i,%i)\nG(%i,%i,%i)\n\n",MPU1.acc.accel_x,MPU1.acc.accel_y,MPU1.acc.accel_z,MPU1.ang.roll*1000,MPU1.ang.pitch*1000,MPU1.ang.yaw*1000);
 
 		//printf("counter = %i\r\n", counter);
 		//printf("PITCH = %f\r\n",1.8*angle.pitch/M_PI);
