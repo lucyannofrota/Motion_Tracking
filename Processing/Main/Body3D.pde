@@ -23,15 +23,18 @@ class Body3DC {
     
     final float len = 10000;
     IBuf.beginDraw();
+    IBuf.pushMatrix();
+    //IBuf.rotateY(radians(180));
     IBuf.lights();
     IBuf.background(#676767);
+    //IBuf.translate(0,0,-10);
     draw_floor(IBuf);
     IBuf.stroke(255, 0, 0);
     IBuf.line(0, 0, 0, len, 0, 0);
     IBuf.stroke(0, 255, 0);
     IBuf.line(0, 0, 0, 0, len, 0);
     IBuf.stroke(0, 0, 255);
-    IBuf.line(0, 0, 0, 0, 0, len);
+    IBuf.line(0, 0, 0, 0, 0, -len);
     IBuf.noStroke();
     
     
@@ -42,7 +45,7 @@ class Body3DC {
     //IBuf.scale(5);
 
     b.draw();
-
+    IBuf.popMatrix();
     IBuf.endDraw();
     return IBuf;
   }
@@ -133,7 +136,7 @@ class body {
     ib.stroke(0, 255, 0);
     ib.line(0, 0, 0, 0, len, 0);
     ib.stroke(0, 0, 255);
-    ib.line(0, 0, 0, 0, 0, len);
+    ib.line(0, 0, 0, 0, 0, -len);
     ib.noStroke();
   }
 
