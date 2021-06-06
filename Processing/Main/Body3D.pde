@@ -16,11 +16,13 @@ class Body3DC {
     IBuf = createGraphics(DrawSize[0], DrawSize[1], P3D);
     b = new body(170, IBuf);
     cam = new camera_Obj(IBuf,float(0),3*float(170)/4,float(100));
+    cam.update();
   }
 
   PGraphics draw() {
     
     final float len = 10000;
+    cam.update();
     IBuf.beginDraw();
     IBuf.pushMatrix();
     //IBuf.rotateY(radians(180));
@@ -37,7 +39,6 @@ class Body3DC {
     IBuf.noStroke();
     
     
-    cam.update();
     //IBuf.fill(#F70A0A);
     //IBuf.rotateX(radians(180));
     //IBuf.translate(width/2, -height/4, -200);
@@ -228,6 +229,41 @@ class body {
     draw_chest(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-b_chest/2, 1);
     draw_hip(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-2*b_chest/2);
   }
+  
+  class joint{
+    PlotGroupIMU sens;
+    PGraphics ibuf;
+    float []transform = {-1,0,0,0,
+                          0,1,0,0,
+                          0,0,-1,0};
+    float [] rpy;
+    joint(PGraphics buf, PlotGroupIMU s){
+      ibuf = buf;
+    }
+    
+    joint(PGraphics buf, PlotGroupIMU s, float [] transf){
+      transform = transf;
+      ibuf = buf;
+    }
+    
+    void pushMatrix(){
+      ibuf.pushMatrix();
+      applyMatrix(
+        transform[0],transform[1],transform[2],transform[3],
+        transform[4],transform[5],transform[6],transform[7],
+        transform[8],transform[9],transform[10],transform[11],
+        transform[12],transform[13],transform[14],transform[15]
+        );
+      rpy = sens.getRPY();
+      rotateX(rpy[0]);
+      rotateY(rpy[1]);
+      rotateZ(rpy[2]);
+    }
+    
+    void popMatrix(){
+      ibuf.popMatrix();
+    }
+  }
 }
 
 
@@ -282,7 +318,7 @@ class camera_Obj {
 
   void update() {
     parent.camera(x, y, z, x+cos(yaw)*cos(pitch), y+sin(pitch), z+sin(yaw)*cos(pitch), 0, -1, 0);
-    parent.perspective(fov, float(width)/float(height), 0.001, 1000000);
+    parent.perspective(fov, float(width)/float(height), 0.001, 10000);
   }
 }
 //stroke(255, 0, 0);

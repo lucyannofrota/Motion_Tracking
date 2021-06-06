@@ -11,7 +11,7 @@ class Sensor3DC extends PGraphics {
   Sensor3DC(int [] Dsize) {
     DrawSize = Dsize;
     IBuf = createGraphics(DrawSize[0], DrawSize[1], P3D);
-    pl = new Plane(IBuf, sensor);
+    pl = new Plane(IBuf, Graphs.getSens(1));
   }
 
   PGraphics draw() {
@@ -63,18 +63,21 @@ class Sensor3DC extends PGraphics {
 
 class Plane {
     PGraphics d; 
-    IMU sensor;
-    Plane(PGraphics ibuf, IMU sens) {
+    PlotGroupIMU sensor;
+    Plane(PGraphics ibuf, PlotGroupIMU sens) {
       d = ibuf;
       sensor = sens;
     }
+    
+    float [] fbuf;
 
     void display() {
       d.pushMatrix();
       d.translate(width/2, height/2, -250);
-      d.rotateX(radians(sensor.rx));
-      d.rotateZ(radians(sensor.ry));
-      d.rotateY(radians(sensor.rz));
+      fbuf = sensor.getRPY();
+      d.rotateX(radians(fbuf[0]));
+      d.rotateZ(radians(fbuf[1]));
+      d.rotateY(radians(fbuf[2]));
       d.scale(200);
       d.scale(1, 1, 1.2);
       // body
