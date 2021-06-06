@@ -108,24 +108,25 @@ class GraphsC {
       ax = new myGPlot(parent);
       ax.setTitleText("Acceleration X");
       ax.setPositionDim(IPos[0],IPos[1]+0*hei, wid, hei);
+      //ax.setDim(250,250);
       // println("PlotIMG");
       // println(wid,hei);
       ax.toggleInd();
-      ax.setYLim(-0.5,0.5);
+      ax.setYLim(-1,1);
       ax.setINDPosf(new String[]{"g"});
 
       ay = new myGPlot(parent);
       ay.setTitleText("Acceleration Y");
       ay.setPositionDim(IPos[0]+0*wid, IPos[1]+1*hei, wid, hei);
       ay.toggleInd();
-      ay.setYLim(-0.5,0.5);
+      ay.setYLim(-1,1);
       ax.setINDPosf(new String[]{"g"});
 
       az = new myGPlot(parent, true);
       az.setTitleText("Acceleration Z");
       az.setPositionDim(IPos[0]+0*wid, IPos[1]+2*hei, wid, hei);
       az.toggleInd();
-      az.setYLim(-0.5,0.5);
+      az.setYLim(-1,1);
       ax.setINDPosf(new String[]{"g"});
 
       rx = new myGPlot(parent);

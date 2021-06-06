@@ -24,12 +24,26 @@ class Sensor3DC extends PGraphics{
     IBuf.lights();
     pl.display();
     //IBuf.fill(#F70A0A);
+    drawBackground();
     //IBuf.box(70);
     IBuf.popMatrix();
     IBuf.endDraw();
     return IBuf;
   }
+  void drawBackground(){
+    PImage img = loadImage("sky.jpg");
+    IBuf.beginShape();
+    IBuf.textureMode(NORMAL);
+    IBuf.texture(img);
+    IBuf.vertex(-1000, -500,-500);
+    IBuf.vertex(3000, -500,-500);
+    IBuf.vertex(3000, 2000,-500);
+    IBuf.vertex(-1000, 2000,-500);
+    IBuf.endShape(CLOSE);
+  }
 }
+
+
 
 class Plane {
   PGraphics d; 
@@ -40,13 +54,12 @@ class Plane {
   }
   
   void display(){
-    
-    
+    d.pushMatrix();
     d.translate(width/2, height/2, -100);
     d.rotateX(radians(sensor.rx));
     d.rotateZ(radians(sensor.ry));
     d.rotateY(radians(sensor.rz));
-    d.scale(90);
+    d.scale(120);
     d.scale(1,1,1.2);
     // body
     d.pushMatrix();
@@ -87,7 +100,6 @@ class Plane {
     d.scale(0.8,0.22,0.35);
     d.sphere(1); 
     d.popMatrix();
-    
+    d.popMatrix();
   }
-  
 }

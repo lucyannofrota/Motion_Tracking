@@ -58,6 +58,7 @@ int readSensor(byte[] data,offset offset,IMU sens){
   sens.ax = readInt(data,offset)/1000.0;
   sens.ay = readInt(data,offset)/1000.0;
   sens.az = readInt(data,offset)/1000.0;
+
   sens.rx = readInt(data,offset);
   sens.ry = readInt(data,offset);
   sens.rz = readInt(data,offset);
@@ -102,6 +103,7 @@ void serialEvent (Serial myPort) {
           //println(b);
           Graphs.newData(sensor,b);
           //CubePose.print();
+          //println("rx: " + sensor.rx + "ry: " + sensor.ry + "rz: " + sensor.rz);
           println("Time:" + (ac-lm));
           lm = ac;
           break;

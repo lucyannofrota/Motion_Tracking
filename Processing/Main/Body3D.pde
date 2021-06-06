@@ -19,9 +19,13 @@ class Body3DC{
     IBuf.beginDraw();
     IBuf.background(#676767);
     IBuf.fill(#F70A0A);
-    IBuf.translate(width/2,height/2);
+    IBuf.rotateX(radians(180));
+    IBuf.translate(width/2,-height/4,-200);
+    IBuf.scale(5);
+
+    
     b.draw();
-    IBuf.lights();
+    
     IBuf.endDraw();
     return IBuf;
   }
