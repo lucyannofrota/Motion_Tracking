@@ -55,9 +55,9 @@ int readSensor(byte[] data,offset offset,IMU sens){
   int a = readShort(data,offset);
   //print("Index: ");
   //println(a);
-  sens.ax = readInt(data,offset);
-  sens.ay = readInt(data,offset);
-  sens.az = readInt(data,offset);
+  sens.ax = readInt(data,offset)/65536.f;
+  sens.ay = readInt(data,offset)/65536.f;
+  sens.az = readInt(data,offset)/65536.f;
   sens.rx = readInt(data,offset);
   sens.ry = readInt(data,offset);
   sens.rz = readInt(data,offset);
@@ -69,6 +69,8 @@ byte[] COMBuff = new byte[64];
 final int buffReadUntil = 17;
 
 int lm;
+
+IMU sensor = new IMU();
 
 void serialEvent (Serial myPort) {
   
@@ -94,7 +96,6 @@ void serialEvent (Serial myPort) {
           lm = ac;
           break;
         case 'S':
-          IMU sensor = new IMU();
           COMBuff = myPort.readBytes(6 * 2 + 1);
           //println(COMBuff);
           int b = readSensor(COMBuff,of,sensor);

@@ -293,7 +293,7 @@ class GraphsC {
         mainLayer.addPoint(newPoint);
         updateLimits();
         //new String [] = {concat(str(newPoint.getY()),INDposf)};
-        indicator.update(str(newPoint.getY())+INDposf);
+        indicator.update(str(newPoint.getY()));
       }
 
       void Draw(boolean X) {
