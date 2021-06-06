@@ -17,7 +17,7 @@ public enum _TAB {
 
 //body bd1 = new body(170, ); 
 
-_TAB currentTAB = _TAB.SENSOR;
+_TAB currentTAB = _TAB.GRAPHS;
 
 PGraphics BackGround;
 

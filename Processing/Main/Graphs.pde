@@ -3,6 +3,8 @@ GraphsC Graphs;
 
 final int DataVectorSize = 10000;
 
+
+
 class GraphsC {
 
   int DrawPosition[];
@@ -12,14 +14,16 @@ class GraphsC {
   int time = 0; //time in ms
 
   public PlotGroupIMU Sensor1;
-  PlotGroupIMU Sensor2;
-  PlotGroupIMU Sensor3;
-  PlotGroupIMU Sensor4;
+  //PlotGroupIMU Sensor2;
+  //PlotGroupIMU Sensor3;
+  //PlotGroupIMU Sensor4;
 
   boolean flag;
   
   final protected PApplet parent;
 
+
+  
   GraphsC(PApplet _parent,int [] Dpos,int [] Dsize) {
     parent = _parent;
     DrawPosition = Dpos;
@@ -28,10 +32,11 @@ class GraphsC {
 
     flag = false;
 
-
     time = 0;
 
     // Criando os plots
+    color bgColor = color(#25251d);
+   
 
 
     Sensor1 = new PlotGroupIMU(parent,float(Dpos),new float[]{DrawSize[0]-4,DrawSize[1]-4});
@@ -40,7 +45,7 @@ class GraphsC {
     //Sensor4 = new PlotGroupIMU(parent,float(Dpos),new float[]{DrawSize[0]-4,DrawSize[1]-4},IBuf);
     
     IBuf.beginDraw();
-    IBuf.background(#676767);
+    IBuf.background(bgColor);
     IBuf.endDraw();
   }
 
@@ -68,13 +73,13 @@ class GraphsC {
       Sensor1.addPoint(elt/1000.0, sens);
       break;
     case 2:
-      Sensor2.addPoint(elt/1000.0, sens);
+      //Sensor2.addPoint(elt/1000.0, sens);
       break;
     case 3:
-      Sensor3.addPoint(elt/1000.0, sens);
+      //Sensor3.addPoint(elt/1000.0, sens);
       break;
     case 4:
-      Sensor4.addPoint(elt/1000.0, sens);
+      //Sensor4.addPoint(elt/1000.0, sens);
       break;
     }
   }
@@ -93,9 +98,13 @@ class GraphsC {
 
     int Npoints = 0;
     final int NdataPlot = 100;
-    
+    color lineColor = color(#9763CB);  
     boolean Cflag = false ,Dflag = false;
-
+    
+    color bgColor = color(#25251d);
+    color boxBgColor = color(#3a3b3c);
+    color boxLineColor = color(#204a42);
+    
     PlotGroupIMU(PApplet parent,float [] _posis,float [] _dimens) {
       //final float Width = _dimens[0], Height = _dimens[1];
       //final float Width = 1920, Height = 1080;
@@ -108,10 +117,8 @@ class GraphsC {
       ax = new myGPlot(parent);
       ax.setTitleText("Acceleration X");
       ax.setPositionDim(IPos[0],IPos[1]+0*hei, wid, hei);
-      //ax.setDim(250,250);
-      // println("PlotIMG");
-      // println(wid,hei);
       ax.toggleInd();
+      ax.setLineColor(lineColor);
       ax.setYLim(-1,1);
       ax.setINDPosf(new String[]{"g"});
 
@@ -120,35 +127,40 @@ class GraphsC {
       ay.setPositionDim(IPos[0]+0*wid, IPos[1]+1*hei, wid, hei);
       ay.toggleInd();
       ay.setYLim(-1,1);
-      ax.setINDPosf(new String[]{"g"});
+      ay.setLineColor(lineColor);
+      ay.setINDPosf(new String[]{"g"});
 
       az = new myGPlot(parent, true);
       az.setTitleText("Acceleration Z");
       az.setPositionDim(IPos[0]+0*wid, IPos[1]+2*hei, wid, hei);
       az.toggleInd();
       az.setYLim(-1,1);
-      ax.setINDPosf(new String[]{"g"});
+      az.setLineColor(lineColor);
+      az.setINDPosf(new String[]{"g"});
 
       rx = new myGPlot(parent);
       rx.setTitleText("Gyro X");
       rx.setPositionDim(IPos[0]+1*wid+2, IPos[1]+0*hei, wid, hei);
       rx.toggleInd();
       rx.setYLim(-200,200);
-      ax.setINDPosf(new String[]{"º"});
+      rx.setLineColor(lineColor);
+      rx.setINDPosf(new String[]{"º"});
 
       ry = new myGPlot(parent);
       ry.setTitleText("Gyro Y");
       ry.setPositionDim(IPos[0]+1*wid+2, IPos[1]+1*hei, wid, hei);
       ry.toggleInd();
       ry.setYLim(-100,100);
-      ax.setINDPosf(new String[]{"º"});
+      ry.setLineColor(lineColor);
+      ry.setINDPosf(new String[]{"º"});
 
       rz = new myGPlot(parent, true);
       rz.setTitleText("Gyro Z");
       rz.setPositionDim(IPos[0]+1*wid+2, IPos[1]+2*hei, wid, hei);
       rz.toggleInd();
+      rz.setLineColor(lineColor);
       rz.setYLim(-200,200);
-      ax.setINDPosf(new String[]{"º"});
+      rz.setINDPosf(new String[]{"º"});
     }
 
     void addPoint(float time, IMU sens) {
@@ -209,22 +221,32 @@ class GraphsC {
       float GraphHeight = floor(Height*0.25);
       float GraphWidth = floor((Width*0.98/2));
       final float IndHeight;
-      final float IndWidtht = 40;
+      final float IndWidtht = 70;
       //final int GraphWidthIND;
       boolean hasInd;
       //final int plotIntSpace = 0;
       int martop = 18, marbot=5, marright = 5, marleft = 30;
 
       final int bord = 10;
-      
+
       PGraphics IBuf;
 
       String INDposf[] = {""};
 
       IND indicator;
+      
+      color bgColor = color(#25251d);
+      color boxBgColor = color(#3a3b3c);
+      color boxLineColor = color(#204a42);
+      color axisColor = color(#453d3c);
       myGPlot(PApplet parent) {
         super(parent);
         getTitle().setOffset(1);
+        getTitle().setFontColor(lineColor);
+        getXAxis().setFontColor(lineColor);
+        getYAxis().setFontColor(lineColor);
+        getXAxis().setLineColor(axisColor);
+        getYAxis().setLineColor(axisColor);
         setPos(5, 100);
         setMar(marbot, marleft, martop, marright);
         setOuterDim(GraphWidth, GraphHeight);
@@ -240,6 +262,11 @@ class GraphsC {
         super(parent);
         if (f) marbot = 30;
         getTitle().setOffset(1);
+        getTitle().setFontColor(lineColor);
+        getXAxis().setFontColor(lineColor);
+        getYAxis().setFontColor(lineColor);
+        getXAxis().setLineColor(axisColor);
+        getYAxis().setLineColor(axisColor);
         setPos(5, 100);
         setMar(marbot, marleft, martop, marright);
         setOuterDim(GraphWidth, GraphHeight);
@@ -286,8 +313,8 @@ class GraphsC {
         parent.rectMode(CORNER);
         parent.fill(bgColor);
         parent.noStroke();
-        if (hasInd) parent.rect(-mar[1], -mar[2] - dim[1], outerDim[0], outerDim[1], 0, bord, bord, 0);
-        else parent.rect(-mar[1], -mar[2] - dim[1], outerDim[0], outerDim[1]);
+        if (hasInd) parent.rect(-mar[1], -mar[2] - dim[1], outerDim[0], outerDim[1], bord);
+        else parent.rect(-mar[1], -mar[2] - dim[1], outerDim[0], outerDim[1], bord);
         parent.popStyle();
       }
 
@@ -295,19 +322,22 @@ class GraphsC {
         parent.pushStyle();
         parent.rectMode(CORNER);
         parent.fill(boxBgColor);
-        parent.stroke(boxLineColor);
-        parent.strokeWeight(boxLineWidth);
+        parent.noStroke();
+        //parent.stroke(boxLineColor);
+        //parent.strokeWeight(boxLineWidth);
         parent.strokeCap(SQUARE);
-        if (hasInd) parent.rect(0, -dim[1], dim[0], dim[1], 0, bord, bord, 0);
-        else parent.rect(0, -dim[1], dim[0], dim[1], 0, 0, 0, 0);
+        if (hasInd) parent.rect(0, -dim[1], dim[0], dim[1],bord);
+        else parent.rect(0, -dim[1], dim[0], dim[1], bord);
         parent.popStyle();
       }
 
       public void addPoint(GPoint newPoint) {
         mainLayer.addPoint(newPoint);
         //updateLimits();
-        //new String [] = {concat(str(newPoint.getY()),INDposf)};
-        indicator.update(str(newPoint.getY()));
+        String temp = str(newPoint.getY());
+        String temp2 = INDposf[0];
+        String arr = temp.concat(temp2);
+        indicator.update(arr);
       }
 
       void Draw(boolean X) {
@@ -347,9 +377,11 @@ class GraphsC {
         float posY = 30;
         final int bordRad = 5;
         protected final PApplet parent;
+        //color lineColor = color(#16b694);
 
+        color boxBgColor = color(#453d3c);
         String text = "0.0";
-
+        //final color bgcolor = color(#575aa7);
         final color fillc = color(255, 255, 255), lienc = color(0, 255, 0);
         float lineWidth = 1;
         IND(PApplet parent_, float [] siz) {
@@ -372,13 +404,12 @@ class GraphsC {
         void draw() {
           parent.pushStyle();
           parent.rectMode(CORNER);
-          parent.fill(fillc);
-          parent.stroke(lienc);
-          parent.strokeWeight(lineWidth);
           parent.strokeCap(SQUARE);
           pushMatrix();
+          noStroke();
           translate(posX+2, posY);
-          parent.rect(0, -Height, Widtht, Height, bordRad, bordRad, bordRad, bordRad);
+          fill(boxBgColor);
+          parent.rect(0, -Height, Widtht, Height, bordRad);
           drawText();
           popMatrix();
           parent.popStyle();
@@ -387,11 +418,12 @@ class GraphsC {
         void drawText() {
           parent.pushStyle();
           textAlign(CENTER, CENTER);
-          fill(0, 102, 200, 100);
-          //stroke(153);
-          //textSize(11);
+         
+          parent.fill(lineColor);
+
           text(text, 0, -Height, Widtht, Height);
           parent.popStyle();
+          
         }
       }
     }
