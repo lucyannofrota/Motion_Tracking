@@ -20,13 +20,8 @@ class Sensor3DC extends PGraphics {
       IBuf.endDraw();
       return IBuf;
     }
-    //if(InitFlag == false){
-    //  IBuf.endDraw();
-    //  return IBuf;
-    //}
     IBuf.noStroke();
     drawBackground();
-    //IBuf.translate(width/2, height/2);
     IBuf.lights();
     pl.display();
     IBuf.endDraw();
@@ -49,8 +44,6 @@ class Sensor3DC extends PGraphics {
 
 
   void mouseClicked() {
-    //flag = !flag;
-    //Sensor1.toggleInd();
   }
   
   
@@ -79,13 +72,35 @@ class Plane {
     
     float [] fbuf;
 
+    void showAxis() {
+      float len = 100000;
+      d.stroke(255, 0, 0);
+      d.line(0, 0, 0, len, 0, 0);
+      d.stroke(0, 255, 0);
+      d.line(0, 0, 0, 0, len, 0);
+      d.stroke(0, 0, 255);
+      d.line(0, 0, 0, 0, 0, -len);
+      d.noStroke();
+    }
+
+
     void display() {
       d.pushMatrix();
       d.translate(width/2, height/2, -250);
+      //showAxis();
       fbuf = sensor.getRPY();
-      d.rotateX(radians(fbuf[0]));
-      d.rotateZ(radians(fbuf[1]));
-      d.rotateY(radians(fbuf[2]));
+      d.rotateX(radians(-90));
+      d.rotateZ(radians(180));
+      //eixo transf
+      //  [-1,0,0
+      //    0,-1,0
+      //    0,0,-1]
+      d.rotateX(radians(-fbuf[0]));
+      d.rotateY(radians(-fbuf[1]));
+      d.rotateZ(radians(-fbuf[2]));
+      showAxis();
+      d.rotateX(radians(-90));
+      d.rotateZ(radians(180));
       d.scale(200);
       d.scale(1, 1, 1.2);
       // body

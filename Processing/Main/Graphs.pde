@@ -18,8 +18,6 @@ class GraphsC {
   //PlotGroupIMU Sensor3;
   //PlotGroupIMU Sensor4;
 
-  //boolean flag;
-
   final protected PApplet parent;
 
 
@@ -29,8 +27,6 @@ class GraphsC {
     DrawPosition = Dpos;
     DrawSize = Dsize;
     IBuf = createGraphics(DrawSize[0], DrawSize[1], P2D);
-
-    //flag = false;
 
     time = 0;
 
@@ -56,7 +52,6 @@ class GraphsC {
 
 
   void mouseClicked() {
-    //flag = !flag;
     Sensor1.toggleInd();
   }
 
@@ -94,11 +89,6 @@ class GraphsC {
   float[] getRPY(int Nsens) {
     float [] rpy;
     rpy = Sensor1.getRPY();
-    //switch(Nsens){
-    //  case 1:
-    //    rpy = Sensor1.getRPY();
-    //  break;
-    //}
     return rpy;
   }
 
@@ -126,8 +116,6 @@ class PlotGroupIMU {
   IMU tempBuf;
 
   PlotGroupIMU(PApplet parent, float [] _posis, float [] _dimens) {
-    //final float Width = _dimens[0], Height = _dimens[1];
-    //final float Width = 1920, Height = 1080;
     tempBuf = new IMU();
     final float IPos[] = {_posis[0]+2, _posis[1]+3};
 
@@ -207,8 +195,6 @@ class PlotGroupIMU {
   }
 
   float[] getRPY() {
-    //if(InitializationFlag == false) return new float[]{0, 0, 0};
-    //while (Cflag) delay(1);
     float [] ret = new float[]{tempBuf.rx, tempBuf.ry, tempBuf.rz};
     return ret;
   }
@@ -250,9 +236,7 @@ class PlotGroupIMU {
     float GraphWidth = floor((Width*0.98/2));
     final float IndHeight;
     final float IndWidtht = 70;
-    //final int GraphWidthIND;
     boolean hasInd;
-    //final int plotIntSpace = 0;
     int martop = 18, marbot=5, marright = 5, marleft = 30;
 
     final int bord = 10;
@@ -279,11 +263,8 @@ class PlotGroupIMU {
       setMar(marbot, marleft, martop, marright);
       setOuterDim(GraphWidth, GraphHeight);
       IndHeight = dim[1];
-      //GraphWidthIND = floor((Width*0.98/2)-IndWidtht);
       hasInd = false;
       indicator = new IND(parent, new float[]{IndWidtht, IndHeight});
-      //float dim[] = getDim();
-      // indicator.setPDims(dim[0], 0, IndWidtht, IndHeight);
     }
 
     myGPlot(PApplet parent, boolean f) {
@@ -299,10 +280,8 @@ class PlotGroupIMU {
       setMar(marbot, marleft, martop, marright);
       setOuterDim(GraphWidth, GraphHeight);
       IndHeight = dim[1];
-      //GraphWidthIND = floor((Width*0.98/2)-IndWidtht);
       hasInd = false;
       indicator = new IND(parent, new float[]{IndWidtht, IndHeight});
-      // indicator.setPDims(dim[0], 0, IndWidtht, IndHeight);
     }
 
     void setPositionDim(float x, float y, float dimX, float dimY) {
@@ -310,11 +289,9 @@ class PlotGroupIMU {
       GraphHeight = dimY;
       setPos(x, y);
       setOuterDim(dimX, dimY);
-      // println(dimX, dimY);
       if (hasInd) {
         indicator.setPDims(x+GraphWidth, y+GraphHeight, dimX, dimY);
       }
-      //println(x+GraphHeight, y+GraphWidth);
     }
 
     void setINDPosf(String [] str) {
@@ -327,7 +304,6 @@ class PlotGroupIMU {
         //IndWidtht
         setDim(dim[0]-IndWidtht, dim[1]);
         setMar(marbot, marleft, martop, marright+IndWidtht);
-        //setOuterDim(GraphWidthIND, GraphHeight);
         indicator.setPDims(dim[0], 0, IndWidtht, dim[1]);
       } else {
         setDim(dim[0], dim[1]);
@@ -351,8 +327,6 @@ class PlotGroupIMU {
       parent.rectMode(CORNER);
       parent.fill(boxBgColor);
       parent.noStroke();
-      //parent.stroke(boxLineColor);
-      //parent.strokeWeight(boxLineWidth);
       parent.strokeCap(SQUARE);
       if (hasInd) parent.rect(0, -dim[1], dim[0], dim[1], bord);
       else parent.rect(0, -dim[1], dim[0], dim[1], bord);
@@ -378,15 +352,6 @@ class PlotGroupIMU {
       //plot.drawRightAxis();
       drawTitle();
       drawLines();
-      //try {
-      //  drawLines();
-      //}
-      //catch(IndexOutOfBoundsException e) {
-      //  e.printStackTrace();
-      //}
-      //catch(NullPointerException e) {
-      //  e.printStackTrace();
-      //}
       if (hasInd) indicator.draw();
       endDraw();
     }
@@ -405,11 +370,9 @@ class PlotGroupIMU {
       float posY = 30;
       final int bordRad = 5;
       protected final PApplet parent;
-      //color lineColor = color(#16b694);
 
       color boxBgColor = color(#453d3c);
       String text = "0.0";
-      //final color bgcolor = color(#575aa7);
       final color fillc = color(255, 255, 255), lienc = color(0, 255, 0);
       float lineWidth = 1;
       IND(PApplet parent_, float [] siz) {

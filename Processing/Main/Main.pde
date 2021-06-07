@@ -6,16 +6,12 @@ import java.io.IOException;
 import grafica.*;
 
 Serial myPort;
-//int a;
-//String data="";
 
 public enum _TAB {
     GRAPHS, 
     BODY, 
     SENSOR
 }
-
-//body bd1 = new body(170, ); 
 
 _TAB currentTAB = _TAB.BODY;
 
@@ -24,36 +20,29 @@ PGraphics BackGround;
 boolean InitializationFlag = false;
 
 void settings() {
-  //fullScreen();
   size(1920, 1080-45, P2D);
 }
 
 final int screenWidth = 1920, screenHeight = 1080;
 float DrawWindowPos[];
 float DrawWindowDim[];
-//int drawWidth, drawHeight;
 void setup() {
   surface.setTitle("Motion Tracking");
   DrawWindowPos = new float[]{5, height*0.1+5};
   DrawWindowDim = new float[]{width-10, height*0.9-25};
-  //drawWidth = floor(width-10); drawHeight = floor(height*0.9-25);
   Graphs = new GraphsC(this, int(DrawWindowPos), int(DrawWindowDim));
   Body3D = new Body3DC(int(DrawWindowDim));
   Sensor3D = new Sensor3DC(int(DrawWindowDim));
 
   lm = millis();
 
-  //cam = new camera_Obj(float(0),3*float(170)/4,float(100));
-  //cam.update();
 
   BackGround = createGraphics(screenWidth, screenHeight);
   // Gradient
   BackGround.beginDraw();
 
   BackGround.rectMode(CORNER);
-  //rectMode(CORNER);  // Default rectMode is CORNER
   BackGround.fill(#EAEAEA);
-  //fill(255);  // Set fill to white
   BackGround.rect(0, 0, 50, 50);
   
   for (int i = 0; i <= screenHeight; i++) {
@@ -70,10 +59,8 @@ void setup() {
   InitializationFlag = true;
 }
 
-//boolean D_Flag = false;
 void draw() {
   if(InitializationFlag == false) return;
-  //background(#41646A);
 
   image(BackGround, 0, 0);
   switch(currentTAB) {

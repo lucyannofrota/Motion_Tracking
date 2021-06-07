@@ -84,27 +84,21 @@ void serialEvent (Serial myPort) {
   if (len > 0) {
     if(len < maxbuf) delay(10);
     COMBuff = myPort.readBytes(1);
-    //println(c);
     if(COMBuff[0] == '{'){
       COMBuff = myPort.readBytes(1);
-      //println(c);
       switch(COMBuff[0]){
         case 'P':
           Pose Pos = new Pose();
           COMBuff = myPort.readBytes(6 * 2 + 1);
           readPose(COMBuff,of,Pos);
-          println("Time:" + (ac-lm));
+          //println("Time:" + (ac-lm));
           lm = ac;
           break;
         case 'S':
           COMBuff = myPort.readBytes(6 * 2 + 1);
-          //println(COMBuff);
           int b = readSensor(COMBuff,of,sensor);
-          //println(b);
           Graphs.newData(sensor,b);
-          //CubePose.print();
-          //println("rx: " + sensor.rx + "ry: " + sensor.ry + "rz: " + sensor.rz);
-          println("Time:" + (ac-lm));
+          //println("Time:" + (ac-lm));
           lm = ac;
           break;
       }

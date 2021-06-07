@@ -9,7 +9,6 @@ class Body3DC {
   PGraphics IBuf;
   body b;
   
-  //boolean InitFlag = false;
   
   camera_Obj cam;
 
@@ -29,16 +28,10 @@ class Body3DC {
       IBuf.endDraw();
       return IBuf;
     }
-    //    if(InitFlag == false){
-    //  IBuf.endDraw();
-    //  return IBuf;
-    //}
     cam.update();
     IBuf.pushMatrix();
-    //IBuf.rotateY(radians(180));
     IBuf.lights();
     IBuf.background(#676767);
-    //IBuf.translate(0,0,-10);
     draw_floor(IBuf);
     IBuf.stroke(255, 0, 0);
     IBuf.line(0, 0, 0, len, 0, 0);
@@ -48,11 +41,6 @@ class Body3DC {
     IBuf.line(0, 0, 0, 0, 0, -len);
     IBuf.noStroke();
     
-    
-    //IBuf.fill(#F70A0A);
-    //IBuf.rotateX(radians(180));
-    //IBuf.translate(width/2, -height/4, -200);
-    //IBuf.scale(5);
 
     b.draw();
     IBuf.popMatrix();
@@ -61,14 +49,12 @@ class Body3DC {
   }
 
   void mouseClicked() {
-    //println("Click");
+    
   }
 
 
   void mouseWheel(MouseEvent e) {
-    //println("Wheel");
     cam.fov+=float(e.getCount())/10;
-    //println(cam.fov);
     if (cam.fov < 1) {
       cam.fov = 1;
     }
@@ -79,7 +65,6 @@ class Body3DC {
   } 
 
   void mouseDragged() {
-    //println("Drag");
     float dXm = mouseX-pmouseX, dYm = mouseY-pmouseY;
     switch(mouseButton) {
     case LEFT:
@@ -214,7 +199,6 @@ class body {
     //rotateZ(PI/2);
     ib.translate(x, y, z);
     float radius = b_shoulders_hip_r/2;
-    //R_Arm.pushMatrix();
     ib.sphere(radius);
     if (showAxis == 1) {
       showAxis();
@@ -224,7 +208,6 @@ class body {
     ib.translate(0,0,20+radius/2);
     ib.fill(#FFD27E);
     drawCylinder(ib,36,3,3,40);
-    //R_Arm.popMatrix();
     ib.popMatrix();
     ib.popMatrix();
   }
@@ -251,7 +234,6 @@ class body {
 
   void draw() {
     ib.noStroke();
-    //ib.lights();
     draw_head(b_height-b_head_r);
     draw_neck(b_height-2*b_head_r-b_neck/2+b_neck/4);
     draw_shoulders(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r);
@@ -289,9 +271,9 @@ class body {
         transform[12],transform[13],transform[14],transform[15]
         );
       rpy = sens.getRPY();
-      ibuf.rotateX(radians(rpy[0]));
-      ibuf.rotateY(radians(rpy[1]));
-      ibuf.rotateZ(radians(rpy[2]));
+      //ibuf.rotateX(radians(rpy[0]));
+      //ibuf.rotateY(radians(rpy[1]));
+      //ibuf.rotateZ(radians(rpy[2]));
     }
     
     void popMatrix(){
@@ -355,9 +337,3 @@ class camera_Obj {
     parent.perspective(fov, float(width)/float(height), 0.001, 10000);
   }
 }
-//stroke(255, 0, 0);
-//line(-1000, 0, 0, 1000, 0, 0);
-//stroke(0, 255, 0);
-//line(0, -1000, 0, 0, 1000, 0);
-//stroke(0, 0, 255);
-//line(0, 0, -1000, 0, 0, 1000);
