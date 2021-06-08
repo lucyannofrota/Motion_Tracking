@@ -8,10 +8,10 @@
 #ifndef SRC_MESSAGE_H_
 #define SRC_MESSAGE_H_
 
+#include <mySensor.h>
 #include <stdio.h>
 #include <string.h>
 #include "macros.h"
-#include "sensorData.h"
 
 void reset();
 void addChar(char data);
@@ -23,6 +23,6 @@ uint8_t available(void);
 void writeBytes();
 void setTemp();
 void sendPose(struct angles_t angle, struct accel_t accel);
-void sendSensor(struct sensor_t sens);
+void sendSensor(struct sensor_t *sens);
 uint8_t length();
 #endif /* SRC_MESSAGE_H_ */

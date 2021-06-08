@@ -144,7 +144,7 @@ class body {
     b_shoulders_hip_r = 28/2;
     b_chest = 45+2*b_shoulders_hip_r;
     ib = p;
-    R_Arm = new joint(ib, Graphs.getSens(1));
+    R_Arm = new joint(ib, Graphs.getSens(1),new float [] {-90,0,0});
   }
 
   void draw_head(float pos) {
@@ -246,6 +246,7 @@ class body {
   class joint{
     PlotGroupIMU sens;
     PGraphics ibuf;
+    float [] Trpy = {0,0,0};
     float []transform = {-1,0,0,0,
                           0,1,0,0,
                           0,0,-1,0,
@@ -257,20 +258,23 @@ class body {
     }
     
     joint(PGraphics buf, PlotGroupIMU s, float [] transf){
-      transform = transf;
+      Trpy = transf;
       ibuf = buf;
       sens = s;
     }
     
     void pushMatrix(){
       ibuf.pushMatrix();
-      ibuf.applyMatrix(
-        transform[0],transform[1],transform[2],transform[3],
-        transform[4],transform[5],transform[6],transform[7],
-        transform[8],transform[9],transform[10],transform[11],
-        transform[12],transform[13],transform[14],transform[15]
-        );
+      //ibuf.applyMatrix(
+      //  transform[0],transform[1],transform[2],transform[3],
+      //  transform[4],transform[5],transform[6],transform[7],
+      //  transform[8],transform[9],transform[10],transform[11],
+      //  transform[12],transform[13],transform[14],transform[15]
+      //  );
       rpy = sens.getRPY();
+      ibuf.rotateX(radians(Trpy[0]*0+rpy[0]));
+      ibuf.rotateY(radians(Trpy[1]*0+rpy[1]));
+      ibuf.rotateZ(radians(Trpy[2]*0+rpy[2]));
       //ibuf.rotateX(radians(rpy[0]));
       //ibuf.rotateY(radians(rpy[1]));
       //ibuf.rotateZ(radians(rpy[2]));

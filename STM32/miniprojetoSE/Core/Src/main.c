@@ -26,12 +26,12 @@
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
+#include <mySensor.h>
 #include "../Inc/Message.h"
 #include "macros.h"
 #include "mpu.h"
 #include "inv_mpu.h"
 #include "inv_mpu_dmp_motion_driver.h"
-#include "sensorData.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,7 +86,10 @@ int _write(int file, char *ptr, int len)
 }
 //extern struct angles_t angle;// = {0,0,0};
 //extern struct accel_t accel;// = {0,0,0};
-extern struct sensor_t MPU1;// = {{0,0,0},{0,0,0}};
+
+//extern struct sensor_t MPU1;// = {{0,0,0},{0,0,0}};
+struct sensor_t sensor1;
+struct sensor_t sensor2;
 //uint32_t temp = 0;
 uint16_t counter = 0;
 
@@ -513,11 +516,9 @@ void StartTransmitTask_BT(void *argument)
   /* Infinite loop */
 	for(;;)
 	{
-		sendSensor(MPU1);
-//		printf("A(%i,%i,%i)\nG(%i,%i,%i)\n\n",MPU1.acc.accel_x,MPU1.acc.accel_y,MPU1.acc.accel_z,MPU1.ang.roll*1000,MPU1.ang.pitch*1000,MPU1.ang.yaw*1000);
+		sendSensor(&sensor1);
 
-		//printf("counter = %i\r\n", counter);
-		//printf("PITCH = %f\r\n",1.8*angle.pitch/M_PI);
+
 		osDelay(150);
 	}
   /* USER CODE END 5 */
@@ -533,12 +534,12 @@ void StartTransmitTask_BT(void *argument)
 void StartSensorTask(void *argument)
 {
   /* USER CODE BEGIN StartSensorTask */
-	if(MPU_init()) NVIC_SystemReset();
+	if(MPU_init(&sensor1,(int)0)) NVIC_SystemReset();
 
   /* Infinite loop */
   for(;;)
   {
-	readSensorData();
+	readSensorData(&sensor1);
 	osDelay(1);
   }
   /* USER CODE END StartSensorTask */

@@ -8,7 +8,7 @@
 #include "Message.h"
 #include "main.h"
 #include <math.h>
-#include "sensorData.h"
+#include <mySensor.h>
 uint8_t * pointer;
 uint8_t   msgStr[64];
 extern uint16_t counter;
@@ -77,20 +77,20 @@ void sendPose(struct angles_t angle, struct accel_t accel){
 	writeBytes();
 }
 
-void sendSensor(struct sensor_t sens){
+void sendSensor(struct sensor_t *sens){
 //	printf("Ping\n");
-	if(sens.count != 0) return;
+//	if(sens->count != 0) return;
 //	printf("A(%i,%i,%i)\nG(%i,%i,%i)\n",1,2,3,4,5,6);
 //	printf("A(%i,%i,%i)\nG(%i,%i,%i)\n",sens.acc.accel_x,sens.acc.accel_y,sens.acc.accel_z,sens.ang.roll*1000,sens.ang.pitch*1000,sens.ang.yaw*1000);
 	reset();
 	addChar('S');
 	addShort(1);
-	addInt(sens.acc.accel_x);
-	addInt(sens.acc.accel_y);
-	addInt(sens.acc.accel_z);
-	addInt(sens.ang.roll);
-	addInt(sens.ang.pitch);
-	addInt(sens.ang.yaw);
+	addInt(sens->filtered.accelerations.accel_x);
+	addInt(sens->filtered.accelerations.accel_y);
+	addInt(sens->filtered.accelerations.accel_z);
+	addInt(sens->filtered.angles.roll);
+	addInt(sens->filtered.angles.pitch);
+	addInt(sens->filtered.angles.yaw);
 	addChar('}');
 	addChar('\n');
 	writeBytes();

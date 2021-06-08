@@ -479,10 +479,10 @@ static struct dmp_s dmp = {
  *  @brief  Load the DMP with this image.
  *  @return 0 if successful.
  */
-int dmp_load_motion_driver_firmware(void)
+int dmp_load_motion_driver_firmware(struct gyro_state_s *st)
 {
     return mpu_load_firmware(DMP_CODE_SIZE, dmp_memory, sStartAddress,
-        DMP_SAMPLE_RATE);
+        DMP_SAMPLE_RATE,st);
 }
 
 /**
@@ -492,7 +492,7 @@ int dmp_load_motion_driver_firmware(void)
  *  @param[in]  orient  Gyro and accel orientation in body frame.
  *  @return     0 if successful.
  */
-int dmp_set_orientation(unsigned short orient)
+int dmp_set_orientation(unsigned short orient,struct gyro_state_s *st)
 {
     unsigned char gyro_regs[3], accel_regs[3];
     const unsigned char gyro_axes[3] = {DINA4C, DINACD, DINA6C};
@@ -508,9 +508,9 @@ int dmp_set_orientation(unsigned short orient)
     accel_regs[2] = accel_axes[(orient >> 6) & 3];
 
     /* Chip-to-body, axes only. */
-    if (mpu_write_mem(FCFG_1, 3, gyro_regs))
+    if (mpu_write_mem(FCFG_1, 3, gyro_regs,st))
         return -1;
-    if (mpu_write_mem(FCFG_2, 3, accel_regs))
+    if (mpu_write_mem(FCFG_2, 3, accel_regs,st))
         return -1;
 
     memcpy(gyro_regs, gyro_sign, 3);
@@ -529,9 +529,9 @@ int dmp_set_orientation(unsigned short orient)
     }
 
     /* Chip-to-body, sign only. */
-    if (mpu_write_mem(FCFG_3, 3, gyro_regs))
+    if (mpu_write_mem(FCFG_3, 3, gyro_regs,st))
         return -1;
-    if (mpu_write_mem(FCFG_7, 3, accel_regs))
+    if (mpu_write_mem(FCFG_7, 3, accel_regs,st))
         return -1;
     dmp.orient = orient;
     return 0;
@@ -547,7 +547,7 @@ int dmp_set_orientation(unsigned short orient)
  *  @param[in]  bias    Gyro biases in q16.
  *  @return     0 if successful.
  */
-int dmp_set_gyro_bias(long *bias)
+int dmp_set_gyro_bias(long *bias,struct gyro_state_s *st)
 {
     long gyro_bias_body[3];
     unsigned char regs[4];
@@ -576,21 +576,21 @@ int dmp_set_gyro_bias(long *bias)
     regs[1] = (unsigned char)((gyro_bias_body[0] >> 16) & 0xFF);
     regs[2] = (unsigned char)((gyro_bias_body[0] >> 8) & 0xFF);
     regs[3] = (unsigned char)(gyro_bias_body[0] & 0xFF);
-    if (mpu_write_mem(D_EXT_GYRO_BIAS_X, 4, regs))
+    if (mpu_write_mem(D_EXT_GYRO_BIAS_X, 4, regs,st))
         return -1;
 
     regs[0] = (unsigned char)((gyro_bias_body[1] >> 24) & 0xFF);
     regs[1] = (unsigned char)((gyro_bias_body[1] >> 16) & 0xFF);
     regs[2] = (unsigned char)((gyro_bias_body[1] >> 8) & 0xFF);
     regs[3] = (unsigned char)(gyro_bias_body[1] & 0xFF);
-    if (mpu_write_mem(D_EXT_GYRO_BIAS_Y, 4, regs))
+    if (mpu_write_mem(D_EXT_GYRO_BIAS_Y, 4, regs,st))
         return -1;
 
     regs[0] = (unsigned char)((gyro_bias_body[2] >> 24) & 0xFF);
     regs[1] = (unsigned char)((gyro_bias_body[2] >> 16) & 0xFF);
     regs[2] = (unsigned char)((gyro_bias_body[2] >> 8) & 0xFF);
     regs[3] = (unsigned char)(gyro_bias_body[2] & 0xFF);
-    return mpu_write_mem(D_EXT_GYRO_BIAS_Z, 4, regs);
+    return mpu_write_mem(D_EXT_GYRO_BIAS_Z, 4, regs,st);
 }
 
 /**
@@ -599,14 +599,14 @@ int dmp_set_gyro_bias(long *bias)
  *  @param[in]  bias    Accel biases in q16.
  *  @return     0 if successful.
  */
-int dmp_set_accel_bias(long *bias)
+int dmp_set_accel_bias(long *bias,struct gyro_state_s *st)
 {
     long accel_bias_body[3];
     unsigned char regs[12];
     long long accel_sf;
     unsigned short accel_sens;
 
-    mpu_get_accel_sens(&accel_sens);
+    mpu_get_accel_sens(&accel_sens,st);
     accel_sf = (long long)accel_sens << 15;
 
 
@@ -642,7 +642,7 @@ int dmp_set_accel_bias(long *bias)
     regs[9] = (unsigned char)((accel_bias_body[2] >> 16) & 0xFF);
     regs[10] = (unsigned char)((accel_bias_body[2] >> 8) & 0xFF);
     regs[11] = (unsigned char)(accel_bias_body[2] & 0xFF);
-    return mpu_write_mem(D_ACCEL_BIAS, 12, regs);
+    return mpu_write_mem(D_ACCEL_BIAS, 12, regs,st);
 }
 
 /**
@@ -651,7 +651,7 @@ int dmp_set_accel_bias(long *bias)
  *  @param[in]  rate    Desired fifo rate (Hz).
  *  @return     0 if successful.
  */
-int dmp_set_fifo_rate(unsigned short rate)
+int dmp_set_fifo_rate(unsigned short rate,struct gyro_state_s *st)
 {
     const unsigned char regs_end[12] = {DINAFE, DINAF2, DINAAB,
         0xc4, DINAAA, DINAF1, DINADF, DINADF, 0xBB, 0xAF, DINADF, DINADF};
@@ -663,9 +663,9 @@ int dmp_set_fifo_rate(unsigned short rate)
     div = DMP_SAMPLE_RATE / rate - 1;
     tmp[0] = (unsigned char)((div >> 8) & 0xFF);
     tmp[1] = (unsigned char)(div & 0xFF);
-    if (mpu_write_mem(D_0_22, 2, tmp))
+    if (mpu_write_mem(D_0_22, 2, tmp,st))
         return -1;
-    if (mpu_write_mem(CFG_6, 12, (unsigned char*)regs_end))
+    if (mpu_write_mem(CFG_6, 12, (unsigned char*)regs_end,st))
         return -1;
 
     dmp.fifo_rate = rate;
@@ -689,7 +689,7 @@ int dmp_get_fifo_rate(unsigned short *rate)
  *  @param[in]  thresh  Tap threshold, in mg/ms.
  *  @return     0 if successful.
  */
-int dmp_set_tap_thresh(unsigned char axis, unsigned short thresh)
+int dmp_set_tap_thresh(unsigned char axis, unsigned short thresh,struct gyro_state_s *st)
 {
     unsigned char tmp[4], accel_fsr;
     float scaled_thresh;
@@ -699,7 +699,7 @@ int dmp_set_tap_thresh(unsigned char axis, unsigned short thresh)
 
     scaled_thresh = (float)thresh / DMP_SAMPLE_RATE;
 
-    mpu_get_accel_fsr(&accel_fsr);
+    mpu_get_accel_fsr(&accel_fsr,st);
     switch (accel_fsr) {
     case 2:
         dmp_thresh = (unsigned short)(scaled_thresh * 16384);
@@ -730,21 +730,21 @@ int dmp_set_tap_thresh(unsigned char axis, unsigned short thresh)
     tmp[3] = (unsigned char)(dmp_thresh_2 & 0xFF);
 
     if (axis & TAP_X) {
-        if (mpu_write_mem(DMP_TAP_THX, 2, tmp))
+        if (mpu_write_mem(DMP_TAP_THX, 2, tmp,st))
             return -1;
-        if (mpu_write_mem(D_1_36, 2, tmp+2))
+        if (mpu_write_mem(D_1_36, 2, tmp+2,st))
             return -1;
     }
     if (axis & TAP_Y) {
-        if (mpu_write_mem(DMP_TAP_THY, 2, tmp))
+        if (mpu_write_mem(DMP_TAP_THY, 2, tmp,st))
             return -1;
-        if (mpu_write_mem(D_1_40, 2, tmp+2))
+        if (mpu_write_mem(D_1_40, 2, tmp+2,st))
             return -1;
     }
     if (axis & TAP_Z) {
-        if (mpu_write_mem(DMP_TAP_THZ, 2, tmp))
+        if (mpu_write_mem(DMP_TAP_THZ, 2, tmp,st))
             return -1;
-        if (mpu_write_mem(D_1_44, 2, tmp+2))
+        if (mpu_write_mem(D_1_44, 2, tmp+2,st))
             return -1;
     }
     return 0;
@@ -755,7 +755,7 @@ int dmp_set_tap_thresh(unsigned char axis, unsigned short thresh)
  *  @param[in]  axis    1, 2, and 4 for XYZ, respectively.
  *  @return     0 if successful.
  */
-int dmp_set_tap_axes(unsigned char axis)
+int dmp_set_tap_axes(unsigned char axis,struct gyro_state_s *st)
 {
     unsigned char tmp = 0;
 
@@ -765,7 +765,7 @@ int dmp_set_tap_axes(unsigned char axis)
         tmp |= 0x0C;
     if (axis & TAP_Z)
         tmp |= 0x03;
-    return mpu_write_mem(D_1_72, 1, &tmp);
+    return mpu_write_mem(D_1_72, 1, &tmp,st);
 }
 
 /**
@@ -773,7 +773,7 @@ int dmp_set_tap_axes(unsigned char axis)
  *  @param[in]  min_taps    Minimum consecutive taps (1-4).
  *  @return     0 if successful.
  */
-int dmp_set_tap_count(unsigned char min_taps)
+int dmp_set_tap_count(unsigned char min_taps,struct gyro_state_s *st)
 {
     unsigned char tmp;
 
@@ -783,7 +783,7 @@ int dmp_set_tap_count(unsigned char min_taps)
         min_taps = 4;
 
     tmp = min_taps - 1;
-    return mpu_write_mem(D_1_79, 1, &tmp);
+    return mpu_write_mem(D_1_79, 1, &tmp,st);
 }
 
 /**
@@ -791,7 +791,7 @@ int dmp_set_tap_count(unsigned char min_taps)
  *  @param[in]  time    Milliseconds between taps.
  *  @return     0 if successful.
  */
-int dmp_set_tap_time(unsigned short time)
+int dmp_set_tap_time(unsigned short time,struct gyro_state_s *st)
 {
     unsigned short dmp_time;
     unsigned char tmp[2];
@@ -799,7 +799,7 @@ int dmp_set_tap_time(unsigned short time)
     dmp_time = time / (1000 / DMP_SAMPLE_RATE);
     tmp[0] = (unsigned char)(dmp_time >> 8);
     tmp[1] = (unsigned char)(dmp_time & 0xFF);
-    return mpu_write_mem(DMP_TAPW_MIN, 2, tmp);
+    return mpu_write_mem(DMP_TAPW_MIN, 2, tmp,st);
 }
 
 /**
@@ -807,7 +807,7 @@ int dmp_set_tap_time(unsigned short time)
  *  @param[in]  time    Max milliseconds between taps.
  *  @return     0 if successful.
  */
-int dmp_set_tap_time_multi(unsigned short time)
+int dmp_set_tap_time_multi(unsigned short time,struct gyro_state_s *st)
 {
     unsigned short dmp_time;
     unsigned char tmp[2];
@@ -815,7 +815,7 @@ int dmp_set_tap_time_multi(unsigned short time)
     dmp_time = time / (1000 / DMP_SAMPLE_RATE);
     tmp[0] = (unsigned char)(dmp_time >> 8);
     tmp[1] = (unsigned char)(dmp_time & 0xFF);
-    return mpu_write_mem(D_1_218, 2, tmp);
+    return mpu_write_mem(D_1_218, 2, tmp,st);
 }
 
 /**
@@ -825,7 +825,7 @@ int dmp_set_tap_time_multi(unsigned short time)
  *  @param[in]  thresh  Gyro threshold in dps.
  *  @return     0 if successful.
  */
-int dmp_set_shake_reject_thresh(long sf, unsigned short thresh)
+int dmp_set_shake_reject_thresh(long sf, unsigned short thresh,struct gyro_state_s *st)
 {
     unsigned char tmp[4];
     long thresh_scaled = sf / 1000 * thresh;
@@ -833,7 +833,7 @@ int dmp_set_shake_reject_thresh(long sf, unsigned short thresh)
     tmp[1] = (unsigned char)(((long)thresh_scaled >> 16) & 0xFF);
     tmp[2] = (unsigned char)(((long)thresh_scaled >> 8) & 0xFF);
     tmp[3] = (unsigned char)((long)thresh_scaled & 0xFF);
-    return mpu_write_mem(D_1_92, 4, tmp);
+    return mpu_write_mem(D_1_92, 4, tmp,st);
 }
 
 /**
@@ -844,14 +844,14 @@ int dmp_set_shake_reject_thresh(long sf, unsigned short thresh)
  *  @param[in]  time    Time in milliseconds.
  *  @return     0 if successful.
  */
-int dmp_set_shake_reject_time(unsigned short time)
+int dmp_set_shake_reject_time(unsigned short time,struct gyro_state_s *st)
 {
     unsigned char tmp[2];
 
     time /= (1000 / DMP_SAMPLE_RATE);
     tmp[0] = time >> 8;
     tmp[1] = time & 0xFF;
-    return mpu_write_mem(D_1_90,2,tmp);
+    return mpu_write_mem(D_1_90,2,tmp,st);
 }
 
 /**
@@ -862,14 +862,14 @@ int dmp_set_shake_reject_time(unsigned short time)
  *  @param[in]  time    Time in milliseconds.
  *  @return     0 if successful.
  */
-int dmp_set_shake_reject_timeout(unsigned short time)
+int dmp_set_shake_reject_timeout(unsigned short time,struct gyro_state_s *st)
 {
     unsigned char tmp[2];
 
     time /= (1000 / DMP_SAMPLE_RATE);
     tmp[0] = time >> 8;
     tmp[1] = time & 0xFF;
-    return mpu_write_mem(D_1_88,2,tmp);
+    return mpu_write_mem(D_1_88,2,tmp,st);
 }
 
 /**
@@ -877,13 +877,13 @@ int dmp_set_shake_reject_timeout(unsigned short time)
  *  @param[out] count   Number of steps detected.
  *  @return     0 if successful.
  */
-int dmp_get_pedometer_step_count(unsigned long *count)
+int dmp_get_pedometer_step_count(unsigned long *count,struct gyro_state_s *st)
 {
     unsigned char tmp[4];
     if (!count)
         return -1;
 
-    if (mpu_read_mem(D_PEDSTD_STEPCTR, 4, tmp))
+    if (mpu_read_mem(D_PEDSTD_STEPCTR, 4, tmp,st))
         return -1;
 
     count[0] = ((unsigned long)tmp[0] << 24) | ((unsigned long)tmp[1] << 16) |
@@ -898,7 +898,7 @@ int dmp_get_pedometer_step_count(unsigned long *count)
  *  @param[in]  count   New step count.
  *  @return     0 if successful.
  */
-int dmp_set_pedometer_step_count(unsigned long count)
+int dmp_set_pedometer_step_count(unsigned long count,struct gyro_state_s *st)
 {
     unsigned char tmp[4];
 
@@ -906,7 +906,7 @@ int dmp_set_pedometer_step_count(unsigned long count)
     tmp[1] = (unsigned char)((count >> 16) & 0xFF);
     tmp[2] = (unsigned char)((count >> 8) & 0xFF);
     tmp[3] = (unsigned char)(count & 0xFF);
-    return mpu_write_mem(D_PEDSTD_STEPCTR, 4, tmp);
+    return mpu_write_mem(D_PEDSTD_STEPCTR, 4, tmp,st);
 }
 
 /**
@@ -914,13 +914,13 @@ int dmp_set_pedometer_step_count(unsigned long count)
  *  @param[in]  time    Walk time in milliseconds.
  *  @return     0 if successful.
  */
-int dmp_get_pedometer_walk_time(unsigned long *time)
+int dmp_get_pedometer_walk_time(unsigned long *time,struct gyro_state_s *st)
 {
     unsigned char tmp[4];
     if (!time)
         return -1;
 
-    if (mpu_read_mem(D_PEDSTD_TIMECTR, 4, tmp))
+    if (mpu_read_mem(D_PEDSTD_TIMECTR, 4, tmp,st))
         return -1;
 
     time[0] = (((unsigned long)tmp[0] << 24) | ((unsigned long)tmp[1] << 16) |
@@ -934,7 +934,7 @@ int dmp_get_pedometer_walk_time(unsigned long *time)
  *  a race condition if called while the pedometer is enabled.
  *  @param[in]  time    New walk time in milliseconds.
  */
-int dmp_set_pedometer_walk_time(unsigned long time)
+int dmp_set_pedometer_walk_time(unsigned long time,struct gyro_state_s *st)
 {
     unsigned char tmp[4];
 
@@ -944,7 +944,7 @@ int dmp_set_pedometer_walk_time(unsigned long time)
     tmp[1] = (unsigned char)((time >> 16) & 0xFF);
     tmp[2] = (unsigned char)((time >> 8) & 0xFF);
     tmp[3] = (unsigned char)(time & 0xFF);
-    return mpu_write_mem(D_PEDSTD_TIMECTR, 4, tmp);
+    return mpu_write_mem(D_PEDSTD_TIMECTR, 4, tmp,st);
 }
 
 /**
@@ -964,7 +964,7 @@ int dmp_set_pedometer_walk_time(unsigned long time)
  *  @param[in]  mask    Mask of features to enable.
  *  @return     0 if successful.
  */
-int dmp_enable_feature(unsigned short mask)
+int dmp_enable_feature(unsigned short mask,struct gyro_state_s *st)
 {
     unsigned char tmp[10];
 
@@ -976,7 +976,7 @@ int dmp_enable_feature(unsigned short mask)
     tmp[1] = (unsigned char)((GYRO_SF >> 16) & 0xFF);
     tmp[2] = (unsigned char)((GYRO_SF >> 8) & 0xFF);
     tmp[3] = (unsigned char)(GYRO_SF & 0xFF);
-    mpu_write_mem(D_0_104, 4, tmp);
+    mpu_write_mem(D_0_104, 4, tmp,st);
 
     /* Send sensor data to the FIFO. */
     tmp[0] = 0xA3;
@@ -1001,19 +1001,19 @@ int dmp_enable_feature(unsigned short mask)
     tmp[7] = 0xA3;
     tmp[8] = 0xA3;
     tmp[9] = 0xA3;
-    mpu_write_mem(CFG_15,10,tmp);
+    mpu_write_mem(CFG_15,10,tmp,st);
 
     /* Send gesture data to the FIFO. */
     if (mask & (DMP_FEATURE_TAP | DMP_FEATURE_ANDROID_ORIENT))
         tmp[0] = DINA20;
     else
         tmp[0] = 0xD8;
-    mpu_write_mem(CFG_27,1,tmp);
+    mpu_write_mem(CFG_27,1,tmp,st);
 
     if (mask & DMP_FEATURE_GYRO_CAL)
-        dmp_enable_gyro_cal(1);
+        dmp_enable_gyro_cal(1,st);
     else
-        dmp_enable_gyro_cal(0);
+        dmp_enable_gyro_cal(0,st);
 
     if (mask & DMP_FEATURE_SEND_ANY_GYRO) {
         if (mask & DMP_FEATURE_SEND_CAL_GYRO) {
@@ -1027,46 +1027,46 @@ int dmp_enable_feature(unsigned short mask)
             tmp[2] = DINAC2;
             tmp[3] = DINA90;
         }
-        mpu_write_mem(CFG_GYRO_RAW_DATA, 4, tmp);
+        mpu_write_mem(CFG_GYRO_RAW_DATA, 4, tmp,st);
     }
 
     if (mask & DMP_FEATURE_TAP) {
         /* Enable tap. */
         tmp[0] = 0xF8;
-        mpu_write_mem(CFG_20, 1, tmp);
-        dmp_set_tap_thresh(TAP_XYZ, 250);
-        dmp_set_tap_axes(TAP_XYZ);
-        dmp_set_tap_count(1);
-        dmp_set_tap_time(100);
-        dmp_set_tap_time_multi(500);
+        mpu_write_mem(CFG_20, 1, tmp,st);
+        dmp_set_tap_thresh(TAP_XYZ, 250,st);
+        dmp_set_tap_axes(TAP_XYZ,st);
+        dmp_set_tap_count(1,st);
+        dmp_set_tap_time(100,st);
+        dmp_set_tap_time_multi(500,st);
 
-        dmp_set_shake_reject_thresh(GYRO_SF, 200);
-        dmp_set_shake_reject_time(40);
-        dmp_set_shake_reject_timeout(10);
+        dmp_set_shake_reject_thresh(GYRO_SF, 200,st);
+        dmp_set_shake_reject_time(40,st);
+        dmp_set_shake_reject_timeout(10,st);
     } else {
         tmp[0] = 0xD8;
-        mpu_write_mem(CFG_20, 1, tmp);
+        mpu_write_mem(CFG_20, 1, tmp,st);
     }
 
     if (mask & DMP_FEATURE_ANDROID_ORIENT) {
         tmp[0] = 0xD9;
     } else
         tmp[0] = 0xD8;
-    mpu_write_mem(CFG_ANDROID_ORIENT_INT, 1, tmp);
+    mpu_write_mem(CFG_ANDROID_ORIENT_INT, 1, tmp,st);
 
     if (mask & DMP_FEATURE_LP_QUAT)
-        dmp_enable_lp_quat(1);
+        dmp_enable_lp_quat(1,st);
     else
-        dmp_enable_lp_quat(0);
+        dmp_enable_lp_quat(0,st);
 
     if (mask & DMP_FEATURE_6X_LP_QUAT)
-        dmp_enable_6x_lp_quat(1);
+        dmp_enable_6x_lp_quat(1,st);
     else
-        dmp_enable_6x_lp_quat(0);
+        dmp_enable_6x_lp_quat(0,st);
 
     /* Pedometer is always enabled. */
     dmp.feature_mask = mask | DMP_FEATURE_PEDOMETER;
-    mpu_reset_fifo();
+    mpu_reset_fifo(st);
 
     dmp.packet_length = 0;
     if (mask & DMP_FEATURE_SEND_RAW_ACCEL)
@@ -1101,14 +1101,14 @@ int dmp_get_enabled_features(unsigned short *mask)
  *  @param[in]  enable  1 to enable gyro calibration.
  *  @return     0 if successful.
  */
-int dmp_enable_gyro_cal(unsigned char enable)
+int dmp_enable_gyro_cal(unsigned char enable,struct gyro_state_s *st)
 {
     if (enable) {
         unsigned char regs[9] = {0xb8, 0xaa, 0xb3, 0x8d, 0xb4, 0x98, 0x0d, 0x35, 0x5d};
-        return mpu_write_mem(CFG_MOTION_BIAS, 9, regs);
+        return mpu_write_mem(CFG_MOTION_BIAS, 9, regs,st);
     } else {
         unsigned char regs[9] = {0xb8, 0xaa, 0xaa, 0xaa, 0xb0, 0x88, 0xc3, 0xc5, 0xc7};
-        return mpu_write_mem(CFG_MOTION_BIAS, 9, regs);
+        return mpu_write_mem(CFG_MOTION_BIAS, 9, regs,st);
     }
 }
 
@@ -1119,7 +1119,7 @@ int dmp_enable_gyro_cal(unsigned char enable)
  *  @param[in]  enable  1 to enable 3-axis quaternion.
  *  @return     0 if successful.
  */
-int dmp_enable_lp_quat(unsigned char enable)
+int dmp_enable_lp_quat(unsigned char enable,struct gyro_state_s *st)
 {
     unsigned char regs[4];
     if (enable) {
@@ -1131,9 +1131,9 @@ int dmp_enable_lp_quat(unsigned char enable)
     else
         memset(regs, 0x8B, 4);
 
-    mpu_write_mem(CFG_LP_QUAT, 4, regs);
+    mpu_write_mem(CFG_LP_QUAT, 4, regs,st);
 
-    return mpu_reset_fifo();
+    return mpu_reset_fifo(st);
 }
 
 /**
@@ -1143,7 +1143,7 @@ int dmp_enable_lp_quat(unsigned char enable)
  *  @param[in]   enable  1 to enable 6-axis quaternion.
  *  @return      0 if successful.
  */
-int dmp_enable_6x_lp_quat(unsigned char enable)
+int dmp_enable_6x_lp_quat(unsigned char enable,struct gyro_state_s *st)
 {
     unsigned char regs[4];
     if (enable) {
@@ -1154,9 +1154,9 @@ int dmp_enable_6x_lp_quat(unsigned char enable)
     } else
         memset(regs, 0xA3, 4);
 
-    mpu_write_mem(CFG_8, 4, regs);
+    mpu_write_mem(CFG_8, 4, regs,st);
 
-    return mpu_reset_fifo();
+    return mpu_reset_fifo(st);
 }
 
 /**
@@ -1196,7 +1196,7 @@ static int decode_gesture(unsigned char *gesture)
  *  @param[in]  mode    DMP_INT_GESTURE or DMP_INT_CONTINUOUS.
  *  @return     0 if successful.
  */
-int dmp_set_interrupt_mode(unsigned char mode)
+int dmp_set_interrupt_mode(unsigned char mode,struct gyro_state_s *st)
 {
     const unsigned char regs_continuous[11] =
         {0xd8, 0xb1, 0xb9, 0xf3, 0x8b, 0xa3, 0x91, 0xb6, 0x09, 0xb4, 0xd9};
@@ -1206,10 +1206,10 @@ int dmp_set_interrupt_mode(unsigned char mode)
     switch (mode) {
     case DMP_INT_CONTINUOUS:
         return mpu_write_mem(CFG_FIFO_ON_EVENT, 11,
-            (unsigned char*)regs_continuous);
+            (unsigned char*)regs_continuous,st);
     case DMP_INT_GESTURE:
         return mpu_write_mem(CFG_FIFO_ON_EVENT, 11,
-            (unsigned char*)regs_gesture);
+            (unsigned char*)regs_gesture,st);
     default:
         return -1;
     }
@@ -1236,7 +1236,7 @@ int dmp_set_interrupt_mode(unsigned char mode)
  *  @return     0 if successful.
  */
 int dmp_read_fifo(short *gyro, short *accel, long *quat,
-    unsigned long *timestamp, short *sensors, unsigned char *more)
+    unsigned long *timestamp, short *sensors, unsigned char *more,struct gyro_state_s *st)
 {
     unsigned char fifo_data[MAX_PACKET_LENGTH];
     unsigned char ii = 0;
@@ -1246,7 +1246,7 @@ int dmp_read_fifo(short *gyro, short *accel, long *quat,
      */
     sensors[0] = 0;
     /* Get a packet. */
-    if (mpu_read_fifo_stream(dmp.packet_length, fifo_data, more)){
+    if (mpu_read_fifo_stream(dmp.packet_length, fifo_data, more,st)){
     	//printf("DMP was not able to read FIFO! \n\r");
     	return -1;
     }
@@ -1284,7 +1284,7 @@ int dmp_read_fifo(short *gyro, short *accel, long *quat,
         if ((quat_mag_sq < QUAT_MAG_SQ_MIN) ||
             (quat_mag_sq > QUAT_MAG_SQ_MAX)) {
             /* Quaternion is outside of the acceptable threshold. */
-            mpu_reset_fifo();
+            mpu_reset_fifo(st);
 
             sensors[0] = 0;
             //printf("Invalid Quart\n\r");
