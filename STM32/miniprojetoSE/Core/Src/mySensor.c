@@ -153,11 +153,11 @@ int MPU_init(struct sensor_t *sens,int AD0){
 	unsigned char accel_fsr;
 	unsigned short gyro_rate, gyro_fsr;
 	struct int_param_s int_param;
-	int_param.cb = gyro_data_ready_cb;
+//	int_param.cb = gyro_data_ready_cb;
 
 	// Structure initialization;
-	if(AD0 == 0) sens->idx = 0;
-	else sens->idx = 1;
+	if(AD0 == 0) sens->idx = 1;
+	else sens->idx = 2;
 
 	sens->count = 0;
 
@@ -177,10 +177,14 @@ int MPU_init(struct sensor_t *sens,int AD0){
 	sens->raw.angles.roll = 0;
 	sens->raw.angles.yaw = 0;
 
+	sens->interrupt_flag = 0;
+
+
 	if (mpu_init(&int_param,AD0,&(sens->st)) !=0){
 		MPL_LOGI("Could not start MPU!\n");
 		return -1;
 	}
+
 
 
 
@@ -334,18 +338,14 @@ void run_self_test(struct gyro_state_s *st)
 
 }
 
-void gyro_data_ready_cb(void)
-{
-	hal.new_gyro = 1;
-}
 
 void readSensorData(struct sensor_t *sens){
 	unsigned long sensor_timestamp;
 
-	if (!hal.sensors || !hal.new_gyro) {
-		return;
-	}
-	if (hal.new_gyro && hal.dmp_on) {
+//	if (!hal.sensors || !sens->interrupt_flag) {
+//		return;
+//	}
+	if (sens->interrupt_flag && hal.dmp_on) {
 		short gyro[3], accel_short[3], sensors;
 		unsigned char more;
 		long quat[4];
@@ -353,14 +353,9 @@ void readSensorData(struct sensor_t *sens){
 		dmp_read_fifo(gyro, accel_short, quat, &sensor_timestamp, &sensors, &more,&(sens->st));
 
 		if (!more)
-			hal.new_gyro = 0;
+			sens->interrupt_flag = 0;
 
-		if (sensors & INV_XYZ_GYRO) {
-			/*printf("gyro: %7.4f %7.4f %7.4f\n",
-					gyro[0]/65536.f,
-					gyro[1]/65536.f,
-					gyro[2]/65536.f);*/
-		}
+
 		if(sensors & INV_XYZ_ACCEL || sensors & INV_WXYZ_QUAT){
 			if(sensors & INV_WXYZ_QUAT)
 				{

@@ -389,7 +389,7 @@ const struct hw_s hw0 = {
 };
 
 const struct hw_s hw1 = {
-		.addr           = 0x68,
+		.addr           = 0x69,
 		.max_fifo       = 1024,
 		.num_reg        = 118,
 		.temp_sens      = 340,

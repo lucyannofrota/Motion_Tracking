@@ -33,13 +33,13 @@ class Body3DC {
     IBuf.lights();
     IBuf.background(#676767);
     draw_floor(IBuf);
-    IBuf.stroke(255, 0, 0);
-    IBuf.line(0, 0, 0, len, 0, 0);
-    IBuf.stroke(0, 255, 0);
-    IBuf.line(0, 0, 0, 0, len, 0);
-    IBuf.stroke(0, 0, 255);
-    IBuf.line(0, 0, 0, 0, 0, -len);
-    IBuf.noStroke();
+    //IBuf.stroke(255, 0, 0);
+    //IBuf.line(0, 0, 0, len, 0, 0);
+    //IBuf.stroke(0, 255, 0);
+    //IBuf.line(0, 0, 0, 0, len, 0);
+    //IBuf.stroke(0, 0, 255);
+    //IBuf.line(0, 0, 0, 0, 0, -len);
+    //IBuf.noStroke();
     
 
     b.draw();
@@ -73,6 +73,14 @@ class Body3DC {
     case RIGHT:
       cam.rot(dXm, dYm);
       break;
+    }
+  }
+  
+  void keyPressed(char key){
+    //println(key);
+    if(key == 'r' || key == 'R'){
+      b.toggleRotZ();
+      //pl.toggleRotZ();
     }
   }
 }
@@ -115,7 +123,7 @@ void drawCylinder(PGraphics IBuf ,int sides, float r1, float r2, float h) {
 }
 
 class body {
-
+  
   float b_height;
 
   float b_head_r;
@@ -136,6 +144,10 @@ class body {
     ib.line(0, 0, 0, 0, 0, -len);
     ib.noStroke();
   }
+  
+  void toggleRotZ(){
+    R_Arm.toggleRotZ();
+  }
 
   body(float _height, PGraphics p) {
     b_height = _height;
@@ -144,7 +156,7 @@ class body {
     b_shoulders_hip_r = 28/2;
     b_chest = 45+2*b_shoulders_hip_r;
     ib = p;
-    R_Arm = new joint(ib, Graphs.getSens(1),new float [] {-90,0,0});
+    R_Arm = new joint(ib, Graphs.getSens(1),new float [] {0,0,0});
   }
 
   void draw_head(float pos) {
@@ -237,15 +249,18 @@ class body {
     draw_head(b_height-b_head_r);
     draw_neck(b_height-2*b_head_r-b_neck/2+b_neck/4);
     draw_shoulders(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r);
-    draw_left_arm(b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 1);
+    draw_left_arm(b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 0);
     draw_right_arm(-b_shoulders_hip_r, b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r+2, 0, 1);
-    draw_chest(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-b_chest/2, 1);
+    draw_chest(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-b_chest/2, 0);
     draw_hip(b_height-2*b_head_r-b_neck+b_neck/3-b_shoulders_hip_r-2*b_chest/2);
   }
   
   class joint{
     PlotGroupIMU sens;
     PGraphics ibuf;
+    
+    boolean flagRotZ = true;
+    
     float [] Trpy = {0,0,0};
     float []transform = {-1,0,0,0,
                           0,1,0,0,
@@ -263,6 +278,13 @@ class body {
       sens = s;
     }
     
+    void toggleRotZ(){
+      //println("Toggle");
+      if(flagRotZ == true) flagRotZ = false;
+      else flagRotZ = true;
+    }
+      
+    
     void pushMatrix(){
       ibuf.pushMatrix();
       //ibuf.applyMatrix(
@@ -272,9 +294,10 @@ class body {
       //  transform[12],transform[13],transform[14],transform[15]
       //  );
       rpy = sens.getRPY();
-      ibuf.rotateX(radians(Trpy[0]*0+rpy[0]));
-      ibuf.rotateY(radians(Trpy[1]*0+rpy[1]));
-      ibuf.rotateZ(radians(Trpy[2]*0+rpy[2]));
+      if(flagRotZ) ibuf.rotateX(radians(Trpy[0]+rpy[2]));
+      else ibuf.rotateX(radians(Trpy[0]));
+      ibuf.rotateY(radians(Trpy[1]+rpy[0]*1.4));
+      ibuf.rotateZ(radians(Trpy[2]+rpy[1]*1.8));
       //ibuf.rotateX(radians(rpy[0]));
       //ibuf.rotateY(radians(rpy[1]));
       //ibuf.rotateZ(radians(rpy[2]));

@@ -88,8 +88,8 @@ int _write(int file, char *ptr, int len)
 //extern struct accel_t accel;// = {0,0,0};
 
 //extern struct sensor_t MPU1;// = {{0,0,0},{0,0,0}};
-struct sensor_t sensor1;
-struct sensor_t sensor2;
+struct sensor_t sensor1 = {0};
+struct sensor_t sensor2 = {0};
 //uint32_t temp = 0;
 uint16_t counter = 0;
 
@@ -150,7 +150,7 @@ int main(void)
   HAL_UART_Receive_DMA (&hlpuart1, SR_BUFFER, BUFFER_LEN);
   HAL_UART_Receive_IT(&huart4, BT_BUFFER, BUFFER_LEN);
 
-
+  HAL_GPIO_WritePin(threedotthree_GPIO_Port, threedotthree_Pin, GPIO_PIN_SET);
   /* USER CODE END 2 */
 
   /* Init scheduler */
@@ -279,7 +279,7 @@ static void MX_I2C1_Init(void)
 
   /* USER CODE END I2C1_Init 1 */
   hi2c1.Instance = I2C1;
-  hi2c1.Init.Timing = 0x10707DBC;
+  hi2c1.Init.Timing = 0x40101A22;
   hi2c1.Init.OwnAddress1 = 0;
   hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
   hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
@@ -435,9 +435,13 @@ static void MX_GPIO_Init(void)
   /* GPIO Ports Clock Enable */
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOG_CLK_ENABLE();
   HAL_PWREx_EnableVddIO2();
   __HAL_RCC_GPIOA_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(threedotthree_GPIO_Port, threedotthree_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(redLED_GPIO_Port, redLED_Pin, GPIO_PIN_RESET);
@@ -450,6 +454,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : threedotthree_Pin */
+  GPIO_InitStruct.Pin = threedotthree_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(threedotthree_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : redLED_Pin */
   GPIO_InitStruct.Pin = redLED_Pin;
@@ -465,7 +476,16 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(greenLED_GPIO_Port, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PB4 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
   /* EXTI interrupt init*/
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
@@ -477,11 +497,14 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 	if(GPIO_Pin == GPIO_PIN_6){
-		hal.new_gyro = 1;
-//		printf("Time: %ims\n",temp);
-//		temp=0;
+		sensor1.interrupt_flag = 1;
+//		printf("Int1\n");
 	}
-	if(GPIO_Pin == Button_Pin) counter++;
+	if(GPIO_Pin == GPIO_PIN_4){
+		sensor2.interrupt_flag = 1;
+//		printf("Int2\n");
+	}
+//	if(GPIO_Pin == Button_Pin) counter++;
 }
 
 /*
@@ -517,6 +540,7 @@ void StartTransmitTask_BT(void *argument)
 	for(;;)
 	{
 		sendSensor(&sensor1);
+//		sendSensor(&sensor2);
 
 
 		osDelay(150);
@@ -535,11 +559,14 @@ void StartSensorTask(void *argument)
 {
   /* USER CODE BEGIN StartSensorTask */
 	if(MPU_init(&sensor1,(int)0)) NVIC_SystemReset();
+//	if(MPU_init(&sensor2,(int)0)) NVIC_SystemReset();
+
 
   /* Infinite loop */
   for(;;)
   {
 	readSensorData(&sensor1);
+//	readSensorData(&sensor2);
 	osDelay(1);
   }
   /* USER CODE END StartSensorTask */

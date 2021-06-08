@@ -84,7 +84,7 @@ void sendSensor(struct sensor_t *sens){
 //	printf("A(%i,%i,%i)\nG(%i,%i,%i)\n",sens.acc.accel_x,sens.acc.accel_y,sens.acc.accel_z,sens.ang.roll*1000,sens.ang.pitch*1000,sens.ang.yaw*1000);
 	reset();
 	addChar('S');
-	addShort(1);
+	addShort(sens->idx);
 	addInt(sens->filtered.accelerations.accel_x);
 	addInt(sens->filtered.accelerations.accel_y);
 	addInt(sens->filtered.accelerations.accel_z);

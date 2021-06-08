@@ -35,6 +35,7 @@ struct sensor_t{
 	struct s_data raw;
 	int count;
 	struct s_data filtered;
+	int interrupt_flag;
 //	struct angles_t ang;
 //	struct accel_t acc;
 };

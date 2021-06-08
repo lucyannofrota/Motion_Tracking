@@ -3,6 +3,8 @@ import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 
+import static javax.swing.JOptionPane.*;
+
 import grafica.*;
 
 Serial myPort;
@@ -13,10 +15,11 @@ public enum _TAB {
     SENSOR
 }
 
-_TAB currentTAB = _TAB.BODY;
+_TAB currentTAB = _TAB.GRAPHS;
 
 PGraphics BackGround;
 
+boolean SetupFlag = false;
 boolean InitializationFlag = false;
 
 void settings() {
@@ -54,12 +57,21 @@ void setup() {
   BackGround.endDraw();
 
   delay(7000);
+  //final String port = showInputDialog("Please enter the COM Port: ");
+  //if (port == null)   exit();
+  //else{
+  //  myPort = new Serial(this, port, 115200);
+  //  SetupFlag = false;
+  //}
   myPort = new Serial(this, "COM4", 115200);
   myPort.buffer(buffReadUntil);
   InitializationFlag = true;
 }
 
 void draw() {
+  if(SetupFlag){
+    return;
+  }
   if(InitializationFlag == false) return;
 
   image(BackGround, 0, 0);
@@ -162,13 +174,28 @@ void keyPressed() {
   if(key == ' '){
     switch(currentTAB){
       case GRAPHS:
-      currentTAB = _TAB.BODY;
-      break;
-      case BODY:
       currentTAB = _TAB.SENSOR;
       break;
-      case SENSOR:
+      case BODY:
       currentTAB = _TAB.GRAPHS;
+      break;
+      case SENSOR:
+      currentTAB = _TAB.BODY;
+      break;
+    }
+  }
+  if(key == 'r' || key == 'R'){
+    switch(currentTAB){
+      case GRAPHS:
+      //currentTAB = _TAB.SENSOR;
+      break;
+      case BODY:
+        Body3D.keyPressed(key);
+      //currentTAB = _TAB.GRAPHS;
+      break;
+      case SENSOR:
+        Sensor3D.keyPressed(key);
+      //currentTAB = _TAB.BODY;
       break;
     }
   }

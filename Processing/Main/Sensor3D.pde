@@ -54,6 +54,13 @@ class Sensor3DC extends PGraphics {
   void mouseDragged(){
     
   }
+  
+  void keyPressed(char key){
+    //println(key);
+    if(key == 'r' || key == 'R'){
+      pl.toggleRotZ();
+    }
+  }
 
 
 
@@ -65,6 +72,9 @@ class Sensor3DC extends PGraphics {
 class Plane {
     PGraphics d; 
     PlotGroupIMU sensor;
+    
+    boolean RotZ = true;
+    
     Plane(PGraphics ibuf, PlotGroupIMU sens) {
       d = ibuf;
       sensor = sens;
@@ -82,6 +92,11 @@ class Plane {
       d.line(0, 0, 0, 0, 0, -len);
       d.noStroke();
     }
+    
+    void toggleRotZ(){
+      if(RotZ == true) RotZ = false;
+      else RotZ = true;
+    }
 
 
     void display() {
@@ -94,10 +109,10 @@ class Plane {
       //eixo transf
       //  [-1,0,0
       //    0,-1,0
-      //    0,0,-1]
-      d.rotateX(radians(-fbuf[0]));
-      d.rotateY(radians(-fbuf[1]));
-      d.rotateZ(radians(-fbuf[2]));
+      //    0,0,1]
+      d.rotateX(radians(fbuf[0]));
+      d.rotateY(radians(fbuf[1]));
+      if(RotZ) d.rotateZ(radians(fbuf[2]));
       showAxis();
       d.rotateX(radians(-90));
       d.rotateZ(radians(180));

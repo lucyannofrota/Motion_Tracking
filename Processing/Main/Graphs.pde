@@ -127,14 +127,14 @@ class PlotGroupIMU {
     ax.setPositionDim(IPos[0], IPos[1]+0*hei, wid, hei);
     ax.toggleInd();
     ax.setLineColor(lineColor);
-    ax.setYLim(-1, 1);
+    ax.setYLim(-1.2, 1.2);
     ax.setINDPosf(new String[]{"g"});
 
     ay = new myGPlot(parent);
     ay.setTitleText("Acceleration Y");
     ay.setPositionDim(IPos[0]+0*wid, IPos[1]+1*hei, wid, hei);
     ay.toggleInd();
-    ay.setYLim(-1, 1);
+    ay.setYLim(-1.2, 1.2);
     ay.setLineColor(lineColor);
     ay.setINDPosf(new String[]{"g"});
 
@@ -142,7 +142,7 @@ class PlotGroupIMU {
     az.setTitleText("Acceleration Z");
     az.setPositionDim(IPos[0]+0*wid, IPos[1]+2*hei, wid, hei);
     az.toggleInd();
-    az.setYLim(-1, 1);
+    az.setYLim(-1.2, 1.2);
     az.setLineColor(lineColor);
     az.setINDPosf(new String[]{"g"});
 
