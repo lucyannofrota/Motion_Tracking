@@ -12,13 +12,11 @@ char readChar(byte[] data,offset offset){
 int readShort(byte[] data,offset offset){
   int ret;
   if((data[offset.value] & 0x80) == 0x80){//Negative
-    ret = (data[offset.value] & 0x7f) | 
-          ((0x00) << 8) | 
-          (0xffffff80);
+    ret = (data[offset.value] & 0xff) |
+          (0xffffff00);
   }
   else{//Positive
-    ret = (data[offset.value] & 0xff) | 
-          ((0x00) << 8);
+    ret = (data[offset.value] & 0xff); 
   }
   offset.value+=1;
   return ret;
@@ -27,9 +25,9 @@ int readShort(byte[] data,offset offset){
 int readInt(byte[] data,offset offset){
   int ret;
   if((data[offset.value+1] & 0x80) == 0x80){//Negative
-    ret = (data[offset.value] & 0xff) | 
-          ((data[offset.value+1] & 0x7f) << 8) | 
-          (0xffff8000);
+    ret = ((data[offset.value] & 0xff) | 
+          ((data[offset.value+1] & 0xff) << 8) | 
+          (0xffff0000));
   }
   else{//Positive
     ret = (data[offset.value] & 0xff) | 
@@ -41,8 +39,6 @@ int readInt(byte[] data,offset offset){
 
 void readPose(byte[] data,offset offset,Pose pos){
   int a = readShort(data,offset);
-  //print("Index: ");
-  //println(a);
   pos.X = readInt(data,offset);
   pos.Y = readInt(data,offset);
   pos.Z = readInt(data,offset);
