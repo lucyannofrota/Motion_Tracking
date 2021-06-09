@@ -1,0 +1,4 @@
+PB9 SDA
+PB8 SCL
+
+PC6 INT
