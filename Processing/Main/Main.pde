@@ -2,6 +2,8 @@ import processing.serial.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
+String port = "COM15";
+int baudrate = 38400;
 
 import static javax.swing.JOptionPane.*;
 
@@ -63,7 +65,7 @@ void setup() {
   //  myPort = new Serial(this, port, 115200);
   //  SetupFlag = false;
   //}
-  myPort = new Serial(this, "COM4", 115200);
+  myPort = new Serial(this, port, baudrate);
   myPort.buffer(buffReadUntil);
   InitializationFlag = true;
 }

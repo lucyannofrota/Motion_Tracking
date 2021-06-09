@@ -29,13 +29,10 @@ void loop(){
 const int maxbuf = 17;
 void readSerial(){
   memcpy(buf,0,BUFFER_LEN);
-//  int ac = millis();
 btread:
   int len = bluetooth.available();
   if(len > 0){
     if(len < maxbuf) delay(15);
-//    Serial.print("len: ");
-//    Serial.println(len);
     bluetooth.readBytes(&buf[0], 1);
     if(buf[0] == '{'){
       bluetooth.readBytes(&buf[1], 1);
@@ -45,18 +42,12 @@ btread:
           
           Serial.write(buf,17);
           
-//          Serial.print("T: ");
-//          Serial.println(ac-ln);
-//          ln = ac;
           break; 
         case 'S':
           bluetooth.readBytes(&buf[2], 1+6*2 + 2); // ler payload (14)
           
           Serial.write(buf,17);
           
-//          Serial.print("T: ");
-//          Serial.println(ac-ln);
-//          ln = ac;
           break; 
       }
       if(bluetooth.available() > maxbuf) goto btread;

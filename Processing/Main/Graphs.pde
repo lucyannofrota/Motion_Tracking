@@ -52,7 +52,7 @@ class GraphsC {
 
 
   void mouseClicked() {
-    Sensor1.toggleInd();
+    //Sensor1.toggleInd();
   }
 
 

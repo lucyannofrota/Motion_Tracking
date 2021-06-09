@@ -21,16 +21,20 @@ __________________________________________________
 |_______|_______|_______|_________|_______|_______|
 Em que:
 	- Caracter inicio: '{' 
-	- S = "sensor"
-	- X: Número do sensor
+	- S = "sensor"			(1 Byte)
+	- X: Número do sensor 		(1 Byte)
 	- ...: payload:
-		+ accel_x,
-		+ accel_y
-		+ accel_z
-		+ roll
-		+ pitch
-		+ yaw
-	- Caracteres fim: '}\n'
+		+ accel_x		(2 Bytes)
+		+ accel_y		(2 Bytes)	
+		+ accel_z		(2 Bytes)
+		+ roll			(2 Bytes)
+		+ pitch			(2 Bytes)
+		+ yaw			(2 Byte)
+	- Caracteres fim: '}'		(1 Byte)
+			  '\n'		(1 Byte)
+					========
+					(16 Bytes)						
+
 
 ===============================================================
 roll,pitch,yaw: graus
