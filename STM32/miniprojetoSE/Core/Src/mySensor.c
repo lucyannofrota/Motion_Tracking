@@ -13,6 +13,8 @@
 #include "inv_mpu_dmp_motion_driver.h"
 #include "Message.h"
 
+extern removGrav;
+
 
 #define sind(x) (sin(fmod((x),360) * M_PI / 180))
 #define cosd(x) (cos(fmod((x),360) * M_PI / 180))
@@ -373,24 +375,28 @@ void readSensorData(struct sensor_t *sens){
 					Angtemp = toEuler(qw, qx, qy, qz);
 				}
 			if (sensors & INV_XYZ_ACCEL) {
-#if REMOVE_GRAVITY == 0
-				Acctemp.accel_x = accel_short[0]*1000/65536.f;
-				Acctemp.accel_y = accel_short[1]*1000/65536.f;
-				Acctemp.accel_z = accel_short[2]*1000/65536.f;
-
-
-#else
-				float qt[4] = {qw,qx,qy,qz};
-				removeGravity(&Acctemp,accel_short,qt);
-
-#endif
-//				struct accel_t Acctemp = {0,0,0};
-//				struct angles_t Angtemp = {0,0,0};
+				if(removGrav == 1){
+					float qt[4] = {qw,qx,qy,qz};
+					removeGravity(&Acctemp,accel_short,qt);
+				}
+				else{
+					Acctemp.accel_x = accel_short[0]*1000/65536.f;
+					Acctemp.accel_y = accel_short[1]*1000/65536.f;
+					Acctemp.accel_z = accel_short[2]*1000/65536.f;
+				}
+//#if REMOVE_GRAVITY == 0
+//				Acctemp.accel_x = accel_short[0]*1000/65536.f;
+//				Acctemp.accel_y = accel_short[1]*1000/65536.f;
+//				Acctemp.accel_z = accel_short[2]*1000/65536.f;
+//
+//
+//#else
+//				float qt[4] = {qw,qx,qy,qz};
+//				removeGravity(&Acctemp,accel_short,qt);
+//
+//#endif
 			}
-//			readingsMPU1.count++;
 			filter_mpuReadings(sens,&Acctemp,&Angtemp);
-//			if(readingsMPU1.count >= FILTER_MPU_NSAMPLES) ;
-			//sendPose(angle,accel);
 		}
 	}
 }

@@ -78,6 +78,7 @@ uint8_t SR_BUFFER[BUFFER_LEN] = "";
 
 uint8_t read = 0;
 struct hal_s hal = {0};
+int removGrav = 1;
 
 int _write(int file, char *ptr, int len)
 {
@@ -504,7 +505,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin){
 		sensor2.interrupt_flag = 1;
 //		printf("Int2\n");
 	}
-//	if(GPIO_Pin == Button_Pin) counter++;
+	if(GPIO_Pin == Button_Pin){
+		if(removGrav == 0) removGrav = 1;
+		else removGrav = 0;
+	}
 }
 
 /*
