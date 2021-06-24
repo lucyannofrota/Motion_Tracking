@@ -2,8 +2,8 @@ import processing.serial.*;
 import java.awt.event.KeyEvent;
 import java.io.IOException;
 
-String port = "COM4";
-int baudrate = 115200;
+String port = "COM5";
+int baudrate = 38400;
 
 import static javax.swing.JOptionPane.*;
 
